@@ -17,6 +17,13 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.techov8.engineerguys.R;
 
 import java.io.File;
@@ -28,14 +35,12 @@ import java.util.Properties;
 
 public class HomeFragment extends Fragment {
 
-    private Button sendquestion;
-    private EditText inputQuestion;
-    private ImageView CameraScan, image;
+    private Button sendquestion, earnbtn;
 
-    Bitmap thumbnail;
-    File pic;
+    private AdView mAdView;
 
-    protected static final int CAMERA_PIC_REQUEST = 0;
+
+
 
 
     @Override
@@ -45,21 +50,62 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
         sendquestion = view.findViewById(R.id.sendbtn);
-        CameraScan = view.findViewById(R.id.scanCamera);
-        inputQuestion = view.findViewById(R.id.AskqustioneditText);
-
-        image = view.findViewById(R.id.imageView2);
+        earnbtn = view.findViewById(R.id.earnbtn);
 
 
-        CameraScan.setOnClickListener(new View.OnClickListener() {
 
+        /////ads
+
+        MobileAds.initialize(getContext(), new OnInitializationCompleteListener() {
             @Override
-            public void onClick(View arg0) {
-                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(cameraIntent, CAMERA_PIC_REQUEST);
-
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
+
+        mAdView = view.findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
+
+
+        mAdView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError adError) {
+
+                mAdView.loadAd(adRequest);
+                // Code to be executed when an ad request fails.
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdClicked() {
+                // Code to be executed when the user clicks on an ad.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
+
+        ///
+
+
+
+
+
+
 
 
         sendquestion.setOnClickListener(new View.OnClickListener() {
@@ -70,16 +116,8 @@ public class HomeFragment extends Fragment {
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.putExtra(Intent.EXTRA_EMAIL, new String[]{"fake@fake.edu"});
                 i.putExtra(Intent.EXTRA_SUBJECT, "On The Job");
-                i.putExtra(Intent.EXTRA_TEXT, inputQuestion.getText().toString());
-                //Log.d("URI@!@#!#!@##!", Uri.fromFile(pic).toString() + "   " + pic.exists());
-                if(pic != null)
-                {  i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(pic));}
-                else{
-                    Toast.makeText(getContext(),"null", Toast.LENGTH_SHORT).show();
-                }
+                i.putExtra(Intent.EXTRA_TEXT, "Type your question or attach photo");
 
-                i.setType("image/*");
-              //  i.setType("message/rfc822");
 
                 startActivity(Intent.createChooser(i, "Share you on the jobing"));
             }
@@ -90,29 +128,5 @@ public class HomeFragment extends Fragment {
     }
 
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == CAMERA_PIC_REQUEST) {
-            thumbnail = (Bitmap) data.getExtras().get("data");
 
-            image.setImageBitmap(thumbnail);
-
-
-            try {
-                File root = Environment.getExternalStorageDirectory();
-                if (root.canWrite()) {
-                    pic = new File(root, "pic.jpg");
-                    FileOutputStream out = new FileOutputStream(pic);
-                    thumbnail.compress(Bitmap.CompressFormat.PNG, 100, out);
-                    out.flush();
-                    out.close();
-                }
-            } catch (IOException e) {
-
-                Log.e("BROKEN", "Could not write file " + e.getMessage());
-            }
-
-        }
-
-
-    }
 }
