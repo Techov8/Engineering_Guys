@@ -53,7 +53,7 @@ public class JobFragment extends Fragment {
 
     private FirebaseFirestore db;
 
-    private ProgressBar progressBar;
+   // private ProgressBar progressBar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,7 +61,7 @@ public class JobFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_faculty, container, false);
         csDepartment = view.findViewById(R.id.csDepartment);
-        progressBar = view.findViewById(R.id.progressBar2);
+       // progressBar = view.findViewById(R.id.progressBar2);
 
 
         csNoData = view.findViewById(R.id.csNoData);
@@ -69,7 +69,7 @@ public class JobFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
 
-        progressBar.setVisibility(View.VISIBLE);
+        //progressBar.setVisibility(View.VISIBLE);
 
         csDepartment();
 
@@ -105,7 +105,7 @@ public class JobFragment extends Fragment {
 
                             }
 
-                            progressBar.setVisibility(View.GONE);
+                           // progressBar.setVisibility(View.GONE);
                             csDepartment.setHasFixedSize(true);
                             csDepartment.setLayoutManager(new LinearLayoutManager(getContext()));
                             adapter = new JobAdapter(list1, getContext());
