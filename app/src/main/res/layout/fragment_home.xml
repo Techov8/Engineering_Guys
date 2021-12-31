@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/teal_200"
-    tools:context=".ui.Ask_Expert.AskQuestionFragment">
+    tools:context=".ui.AskQuestion.HomeFragment">
 
 
 
@@ -16,54 +16,21 @@
         android:orientation="vertical"
         android:padding="@dimen/text_margin">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:orientation="horizontal">
-            <ImageView
-                android:id="@+id/scanCamera"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_margin="5dp"
-
-                android:layout_gravity="center"
-                android:background="@null"
-                android:src="@drawable/ic_baseline_camera_alt_24" />
-
-
-
-
-        </LinearLayout>
-
-
-
-
-
-        <EditText
-            android:id="@+id/AskqustioneditText"
-            android:layout_width="match_parent"
-            android:layout_height="130dp"
-            android:layout_marginTop="10dp"
-            android:ems="10"
-            android:maxLines="5"
-            android:gravity="start"
-            android:padding="16dp"
-            android:layout_marginEnd="15sp"
-            android:layout_marginStart="15sp"
-            android:background="@drawable/curve"
-            android:inputType="textPersonName|textMultiLine"
-            android:hint="Type your question here......" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:layout_weight="1" />
 
             <Button
                 android:id="@+id/sendbtn"
@@ -73,15 +40,42 @@
                 android:padding="10sp"
                 android:layout_margin="15sp"
                 android:background="@drawable/slider_background"
-                android:text="Ask "  />
+                android:text="Ask Questions"  />
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:padding="3dp"
+                android:textSize="18sp"
+                android:textColor="#000000"
+                android:text="Wanna earn coin ? click Earn button below." />
+
+            <Button
+                android:id="@+id/earnbtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="10sp"
+                android:layout_margin="10sp"
+                android:background="@drawable/slider_background"
+                android:text="Earn "  />
+
+            <com.google.android.gms.ads.AdView
+                xmlns:ads="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/adView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true"
+                ads:adSize="MEDIUM_RECTANGLE"
+                ads:adUnitId="ca-app-pub-3940256099942544/6300978111">
+            </com.google.android.gms.ads.AdView>
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="60dp"
-            android:src="@drawable/chalogoc" />
     </LinearLayout>
 
 
