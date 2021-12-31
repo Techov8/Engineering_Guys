@@ -15,7 +15,8 @@
         android:supportsRtl="true"
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.CEC">
+        android:theme="@style/Theme.CEC"
+        android:hardwareAccelerated="true">
         <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-4952923992420870~5604833904"/>
 

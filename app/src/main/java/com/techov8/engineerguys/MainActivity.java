@@ -26,6 +26,15 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
 
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
@@ -37,7 +46,6 @@ import com.google.android.play.core.tasks.OnSuccessListener;
 import com.google.android.play.core.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.messaging.FirebaseMessaging;
-//import com.techov8.cec.ebook.EbookActivity;
 
 import java.util.Objects;
 
@@ -54,7 +62,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private int REQUEST_CODE = 11;
     private Dialog referDialog;
-    public static boolean isTestAd=true;
+    public static boolean isTestAd = true;
+    private InterstitialAd mInterstitialAd;
+    private String AD_UNIT_ID;
 
 
     @Override
@@ -80,7 +90,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         //////////////////////////////////// IN APP UPDATE FEATURES
+        if (MainActivity.isTestAd) {
+            AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712";
+        } else {
+            AD_UNIT_ID = "ca-app-pub-4594073781530728/7010290628";
+        }
 
+        loadAd();
 
         AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(MainActivity.this);
 
@@ -130,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 shareIntent.setType("text/plain");
                 shareIntent.putExtra(Intent.EXTRA_SUBJECT, "My application name");
 
-                String shareMessage = "\nMy Refer Id: "+referId+"\n\n";
+                String shareMessage = "\nMy Refer Id: " + referId + "\n\n";
                 shareMessage = shareMessage + "https://play.google.com/store/apps/details?id=com.techov8.p_droid" + "\n\n";
                 shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
                 startActivity(Intent.createChooser(shareIntent, "choose one"));
@@ -142,10 +158,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    public void loadAd() {
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        AdRequest adRequest = new AdRequest.Builder().build();
+
+        InterstitialAd.load(this, AD_UNIT_ID, adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        // The mInterstitialAd reference will be null until
+                        // an ad is loaded.
+                        mInterstitialAd = interstitialAd;
+                        Log.i("MainActivity", "onAdLoaded");
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        // Handle the error
+                        Log.i("MainActivity", loadAdError.getMessage());
+                        mInterstitialAd = null;
+                    }
+                });
+    }
+
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (toggle.onOptionsItemSelected(item)) {
+
             return true;
+
         }
         return true;
 
@@ -210,11 +256,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
+
+        if (mInterstitialAd != null) {
+            mInterstitialAd.show(this);
+            mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                @Override
+                public void onAdDismissedFullScreenContent() {
+                    // Called when fullscreen content is dismissed.
+                    Log.d("TAG", "The ad was dismissed.");
+                    loadAd();
+
+                }
+
+                @Override
+                public void onAdFailedToShowFullScreenContent(AdError adError) {
+                    // Called when fullscreen content failed to show.
+                    Log.d("TAG", "The ad failed to show.");
+                    loadAd();
+                }
+
+                @Override
+                public void onAdShowedFullScreenContent() {
+                    // Called when fullscreen content is shown.
+                    // Make sure to set your reference to null so you don't
+                    // show it a second time.
+                    mInterstitialAd = null;
+                    loadAd();
+                    Log.d("TAG", "The ad was shown.");
+                }
+            });
+        }
+
+
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+
+
+
             drawerLayout.closeDrawer(GravityCompat.START);
-        } else
+
+        } else {
 
             super.onBackPressed();
+        }
     }
 
 

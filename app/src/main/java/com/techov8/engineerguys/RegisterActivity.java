@@ -97,7 +97,7 @@ public class RegisterActivity extends AppCompatActivity {
             public void onSuccess(AuthResult authResult) {
 
                 String id = UUID.randomUUID().toString().substring(0,2);
-                String referId=name.toUpperCase()+id;
+                String referId=name.toLowerCase()+"_"+id;
                 HashMap<String , Object> map = new HashMap<>();
                 map.put("name" , name);
                 map.put("email", email);
