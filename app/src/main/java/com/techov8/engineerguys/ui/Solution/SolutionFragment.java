@@ -13,11 +13,16 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.techov8.engineerguys.R;
 
 
@@ -27,10 +32,10 @@ public class SolutionFragment extends Fragment {
 
     private RecyclerView deleteNoticeRecycler;
     private ProgressBar progressBar;
-    private ArrayList<SolutionData> list;
+    private ArrayList<SolutionData> list= new ArrayList<>();;
     private SolutionAdapter adapter;
 
-    private DatabaseReference reference;
+    private FirebaseFirestore db;
     private TextView nodata;
 
     @Override
@@ -43,7 +48,7 @@ public class SolutionFragment extends Fragment {
         nodata = view.findViewById(R.id.nodata);
 
 
-        reference = FirebaseDatabase.getInstance().getReference().child("Newsfeed");
+        db = FirebaseFirestore.getInstance();
 
         deleteNoticeRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         deleteNoticeRecycler.setHasFixedSize(true);
@@ -54,39 +59,49 @@ public class SolutionFragment extends Fragment {
     }
 
     private void getNotice() {
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                list = new ArrayList<>();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    SolutionData data = snapshot.getValue(SolutionData.class);
-                    list.add(0, data);
-                }
+
+        db.collection("Newsfeed").
+                get().
+                addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot documentSnapshots : task.getResult()) {
 
 
-                if (list.size() != 0) {
-                    adapter = new SolutionAdapter(getContext(), list);
-                    adapter.notifyDataSetChanged();
-                    progressBar.setVisibility(View.GONE);
+                                list.add(0,new SolutionData(documentSnapshots.get("title").toString(), documentSnapshots.get("image").toString(),
+                                        documentSnapshots.get("date").toString(),
+                                        documentSnapshots.get("time").toString(), documentSnapshots.getId().toString()));
 
-                    deleteNoticeRecycler.setAdapter(adapter);
-                } else {
-                    progressBar.setVisibility(View.GONE);
-
-                    nodata.setVisibility(View.VISIBLE);
+                            }
 
 
-                }
+                            if (list.size() != 0) {
+                                adapter = new SolutionAdapter(getContext(), list);
+                                adapter.notifyDataSetChanged();
+                                progressBar.setVisibility(View.GONE);
 
-            }
+                                deleteNoticeRecycler.setAdapter(adapter);
+                            } else {
+                                progressBar.setVisibility(View.GONE);
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                progressBar.setVisibility(View.GONE);
+                                nodata.setVisibility(View.VISIBLE);
 
-                Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+
+                            }
+                        } else {
+                            Toast.makeText(getContext(),"Something went wrong",Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                });
+
+
+
+
+        ///////////////
+
     }
 
 }
