@@ -1,0 +1,3 @@
+include ':nativetemplates'
+rootProject.name = "Engineer Guys"
+include ':app'
