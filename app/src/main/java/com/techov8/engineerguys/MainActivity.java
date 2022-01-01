@@ -9,7 +9,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
@@ -17,6 +20,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -45,11 +49,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.play.core.tasks.OnSuccessListener;
 import com.google.android.play.core.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.techov8.engineerguys.ui.Profile.User;
 
 import java.util.Objects;
 
 import static com.google.android.play.core.install.model.AppUpdateType.FLEXIBLE;
+import static com.techov8.engineerguys.RegisterActivity.isfromRegister;
+import static com.techov8.engineerguys.RegisterActivity.referedId;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -64,13 +76,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Dialog referDialog;
     public static boolean isTestAd = true;
     private InterstitialAd mInterstitialAd;
-    private String AD_UNIT_ID;
+    private String AD_UNIT_ID, coin, username;
 
+    private String isFromRegister = "No";
+    private String referId;
+    private static String noOfCoins = "0";
+
+
+    private DatabaseReference mref, mRootRef, muser;
+
+    private FirebaseAuth mAuth;
+
+    private int counter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        mref = FirebaseDatabase.getInstance().getReference();
+        mRootRef = FirebaseDatabase.getInstance().getReference();
+        muser = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         navController = Navigation.findNavController(this, R.id.frame_layout);
@@ -89,7 +117,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
 
-        //////////////////////////////////// IN APP UPDATE FEATURES
         if (MainActivity.isTestAd) {
             AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712";
         } else {
@@ -97,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         loadAd();
-
+//////////////////////////////////// IN APP UPDATE FEATURES
         AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(MainActivity.this);
 
         Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
@@ -115,7 +142,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        FirebaseMessaging.getInstance().subscribeToTopic("weather")
+        //////////////////////for cloud notification
+        FirebaseMessaging.getInstance().subscribeToTopic("all")
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
@@ -123,13 +151,107 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                 });
 
-        /////////////////////////////////
+/////////////////////////////////
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        Intent intent = getIntent();
+
+        String referal = intent.getStringExtra("referal");
+        isFromRegister = intent.getStringExtra("isFromRegister");
+
+        if (referal != null && isFromRegister != null) {
+
+            if (counter < 1) {
+
+                FirebaseDatabase.getInstance().getReference().child("Users").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            User post = snapshot.getValue(User.class);
+
+
+                            if (post.getRefer_id().equals(referal)) {
+
+
+                                Log.e("dimag khrab", "ho gya" + post.getRefer_id());
+                                Log.e("dimag khrab", "ho gya" + post.getId());
+                                Log.e("dimag khrab", "ho gya" + post.getNo_of_coins());
+
+                                if (counter < 1) {
+
+                                    mref.child("Users").child(post.getId()).child("no_of_coins").setValue(String.valueOf(Integer.parseInt(post.getNo_of_coins()) + 10));
+
+
+                                    counter++;
+                                }
+
+                            }
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+        }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
         SharedPreferences prefs = getSharedPreferences("Refer_data",
                 0);
-        String referId = prefs.getString("id",
+        referId = prefs.getString("id",
                 "no");
+
+
+///// for showing coin to user
+        ActionBar mActionBar = getSupportActionBar();
+        mActionBar.setDisplayShowHomeEnabled(false);
+        mActionBar.setDisplayShowTitleEnabled(false);
+        LayoutInflater mInflater = LayoutInflater.from(this);
+
+        View mCustomView = mInflater.inflate(R.layout.custom_actionbar, null);
+        TextView mTitleTextView = (TextView) mCustomView.findViewById(R.id.title_text);
+
+
+        mRootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("no_of_coins").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                noOfCoins = snapshot.getValue().toString();
+
+                mTitleTextView.setText(noOfCoins);
+
+
+                mActionBar.setCustomView(mCustomView, new ActionBar.LayoutParams(
+                        ActionBar.LayoutParams.WRAP_CONTENT,
+                        ActionBar.LayoutParams.MATCH_PARENT,
+                        Gravity.RIGHT
+                ));
+                mActionBar.setDisplayShowCustomEnabled(true);
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
+///// for showing coin to user till here
+
+
+//////////for share
+
 
         referDialog = new Dialog(MainActivity.this);
         referDialog.setContentView(R.layout.refer_dialog);
@@ -147,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 shareIntent.putExtra(Intent.EXTRA_SUBJECT, "My application name");
 
                 String shareMessage = "\nMy Refer Id: " + referId + "\n\n";
-                shareMessage = shareMessage + "https://play.google.com/store/apps/details?id=com.techov8.p_droid" + "\n\n";
+                shareMessage = shareMessage + "https://play.google.com/store/apps/details?id=com.techov8.engineerguys" + "\n\n";
                 shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
                 startActivity(Intent.createChooser(shareIntent, "choose one"));
             } catch (Exception e) {
@@ -157,6 +279,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     }
+
 
     public void loadAd() {
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
@@ -205,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.navigation_rateUs:
 
-                Uri uri = Uri.parse("market://details?id=com.techov8.p_droid");
+                Uri uri = Uri.parse("market://details?id=com.techov8.engineerguys");
 
                 Intent marketIntent = new Intent(Intent.ACTION_VIEW, uri);
 
@@ -218,7 +341,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 try {
                     startActivity(marketIntent);
                 } catch (ActivityNotFoundException e) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.techov8.p_droid")));
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.techov8.engineerguys")));
                 }
                 break;
 
@@ -246,7 +369,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
                 FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(MainActivity.this, StartActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                startActivity(new Intent(MainActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
                 finish();
                 break;
 
@@ -289,7 +412,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-
 
 
             drawerLayout.closeDrawer(GravityCompat.START);

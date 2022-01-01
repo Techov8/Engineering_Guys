@@ -39,10 +39,22 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
+
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+
+            //  intent.putExtra("coin", "noOfCoins");
+            //  intent.putExtra("user", "username");
+            //intent.putExtra("isFromRegister", "No");
+            startActivity(intent);
+            finish();
+        }
+
+
         registerUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this , RegisterActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                startActivity(new Intent(LoginActivity.this, RegisterActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
             }
         });
 
@@ -52,10 +64,10 @@ public class LoginActivity extends AppCompatActivity {
                 String txt_email = email.getText().toString();
                 String txt_password = password.getText().toString();
 
-                if (TextUtils.isEmpty(txt_email) || TextUtils.isEmpty(txt_password)){
+                if (TextUtils.isEmpty(txt_email) || TextUtils.isEmpty(txt_password)) {
                     Toast.makeText(LoginActivity.this, "Empty Credentials!", Toast.LENGTH_SHORT).show();
                 } else {
-                    loginUser(txt_email , txt_password);
+                    loginUser(txt_email, txt_password);
                 }
             }
         });
@@ -63,14 +75,18 @@ public class LoginActivity extends AppCompatActivity {
 
     private void loginUser(String email, String password) {
 
-        mAuth.signInWithEmailAndPassword(email , password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()){
+                if (task.isSuccessful()) {
                     Toast.makeText(LoginActivity.this, "Update the profile " +
                             "for better expereince", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(LoginActivity.this , MainActivity.class);
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                    //intent.putExtra("coin", "noOfCoins");
+                    intent.putExtra("user", "username");
+                    intent.putExtra("isFromRegister", "No");
                     startActivity(intent);
                     finish();
                 }

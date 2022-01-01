@@ -13,9 +13,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.ads.AdError;
@@ -40,17 +42,14 @@ import java.io.IOException;
 import java.util.Properties;
 
 
-
 public class HomeFragment extends Fragment {
 
     private Button sendquestion, earnbtn;
 
     private AdView mAdView;
     private RewardedAd rewardedAdMain;
-    private static  String VIDEO_AD_UNIT_ID ;
+    private static String VIDEO_AD_UNIT_ID;
     boolean isLoading;
-
-
 
 
     @Override
@@ -62,9 +61,13 @@ public class HomeFragment extends Fragment {
         sendquestion = view.findViewById(R.id.sendbtn);
         earnbtn = view.findViewById(R.id.earnbtn);
 
-        if(MainActivity.isTestAd){
+
+
+
+
+        if (MainActivity.isTestAd) {
             VIDEO_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917";
-        }else{
+        } else {
             VIDEO_AD_UNIT_ID = "ca-app-pub-4594073781530728/7481048002";
         }
         loadRewardedAd();
@@ -87,7 +90,6 @@ public class HomeFragment extends Fragment {
         mAdView = view.findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
-
 
 
         mAdView.setAdListener(new AdListener() {
@@ -124,24 +126,26 @@ public class HomeFragment extends Fragment {
         ///
 
 
-
-
-
-
-
-
         sendquestion.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
 
-                Intent i = new Intent(Intent.ACTION_SEND);
-                i.putExtra(Intent.EXTRA_EMAIL, new String[]{"fake@fake.edu"});
-                i.putExtra(Intent.EXTRA_SUBJECT, "On The Job");
-                i.putExtra(Intent.EXTRA_TEXT, "Type your question or attach photo");
 
+                try {
 
-                startActivity(Intent.createChooser(i, "Share you on the jobing"));
+                    Intent intent = new Intent(Intent.ACTION_SENDTO);
+                    intent.setType("plain/text");
+                    intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+                    intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"fake@edu"});
+                    intent.putExtra(Intent.EXTRA_SUBJECT, "Question");
+                    intent.putExtra(Intent.EXTRA_TEXT, "Write your question or attach photo");
+                    if (intent.resolveActivity(getContext().getPackageManager()) != null) {
+                        startActivity(intent);
+                    }
+                }catch (Exception e) {
+                e.printStackTrace();
+            }
             }
         });
 
