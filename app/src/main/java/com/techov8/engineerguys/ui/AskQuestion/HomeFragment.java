@@ -20,6 +20,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 
+import com.denzcoskun.imageslider.ImageSlider;
+import com.denzcoskun.imageslider.constants.ScaleTypes;
+import com.denzcoskun.imageslider.interfaces.ItemClickListener;
+import com.denzcoskun.imageslider.models.SlideModel;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
@@ -33,23 +37,40 @@ import com.google.android.gms.ads.initialization.OnInitializationCompleteListene
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.techov8.engineerguys.MainActivity;
 import com.techov8.engineerguys.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+
+import static com.techov8.engineerguys.MainActivity.noOfCoins;
 
 
 public class HomeFragment extends Fragment {
 
     private Button sendquestion, earnbtn;
 
+    private DatabaseReference mref;
+    private FirebaseAuth mAuth;
+
     private AdView mAdView;
     private RewardedAd rewardedAdMain;
     private static String VIDEO_AD_UNIT_ID;
     boolean isLoading;
+    private FirebaseFirestore firebaseFirestore;
+    ImageSlider imageSlider;
 
 
     @Override
@@ -61,8 +82,62 @@ public class HomeFragment extends Fragment {
         sendquestion = view.findViewById(R.id.sendbtn);
         earnbtn = view.findViewById(R.id.earnbtn);
 
+        mref = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
 
 
+///////////////////////////////////////////////////////////////////////////Banner slider
+
+
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        imageSlider = view.findViewById(R.id.image_slider);
+
+        final List<SlideModel> imageSliderList = new ArrayList<SlideModel>();
+
+
+        ///////
+        firebaseFirestore.collection("Newsfeed").
+
+                get().
+                addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot documentSnapshots : task.getResult()) {
+
+
+                                long no_of_banners = (long) documentSnapshots.get("no_of_banners");
+                                for (long x = 1; x < no_of_banners + 1; x++) {
+                                    imageSliderList.add(new SlideModel(documentSnapshots.get("banner_" + x + "_url").toString()
+                                            , documentSnapshots.get("banner_" + x + "_title").toString(), ScaleTypes.FIT));
+                                }
+
+
+                                imageSlider.setImageList(imageSliderList,ScaleTypes.FIT);
+
+                                imageSlider.setItemClickListener(new ItemClickListener() {
+                                    @Override
+                                    public void onItemSelected(int i) {
+
+                                    }
+                                });
+
+                            }
+
+
+                        } else {
+                            // Toast.makeText(getContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                });
+        //home page data code end!
+
+
+        ///////
+
+///////////////////////////////////////////////////////////////////////////Banner slider till here
 
 
         if (MainActivity.isTestAd) {
@@ -143,9 +218,9 @@ public class HomeFragment extends Fragment {
                     if (intent.resolveActivity(getContext().getPackageManager()) != null) {
                         startActivity(intent);
                     }
-                }catch (Exception e) {
-                e.printStackTrace();
-            }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -228,6 +303,12 @@ public class HomeFragment extends Fragment {
                         String rewardType = rewardItem.getType();
 
 
+
+                      mref.child("Users").child(mAuth.getCurrentUser().getUid()).child("no_of_coins").setValue(String.valueOf(rewardAmount + Integer.parseInt(noOfCoins)));
+
+
+
+                        Toast.makeText(getContext(), rewardAmount+" coin added", Toast.LENGTH_SHORT).show();
                         // Supriyo do coin work
                     }
                 });

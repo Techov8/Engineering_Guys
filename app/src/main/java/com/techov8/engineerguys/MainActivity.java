@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private String isFromRegister = "No";
     private String referId;
-    private static String noOfCoins = "0";
+    public static String noOfCoins = "0";
 
 
     private DatabaseReference mref, mRootRef, muser;

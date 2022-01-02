@@ -69,9 +69,6 @@ public class RegisterActivity extends AppCompatActivity {
         pd = new ProgressDialog(this);
 
 
-
-
-
         loginUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -127,7 +124,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                 // fcm settings for perticular user
 
-                /*final String[] token = new String[1];
+                // final String[] token = new String[1];
 
                 FirebaseMessaging.getInstance().getToken()
                         .addOnCompleteListener(new OnCompleteListener<String>() {
@@ -139,49 +136,48 @@ public class RegisterActivity extends AppCompatActivity {
                                 }
 
                                 // Get new FCM registration token
-                                token[0] = task.getResult();
+                                String token = task.getResult();
 
+                               // Toast.makeText(RegisterActivity.this, token, Toast.LENGTH_SHORT).show();
                                 // Log and toast
                                 //  String msg = getString(R.string.msg_token_fmt, token);
-                                //Log.d(TAG, msg);
+                                Log.e("fcm", "--" + token);
+
+
+                                User user = new User(name, email, token, "0", mobile, " ", mAuth.getCurrentUser().getUid(), referId);
+
+                                SharedPreferences prefs = getSharedPreferences("Refer_data", 0);
+                                SharedPreferences.Editor editor = prefs.edit();
+                                editor.putString("id", referId);
+                                editor.apply();
+
+                                mRootRef.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+
+
+                                            pd.dismiss();
+
+                                            Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                                            intent.putExtra("referal", referal);
+                                            intent.putExtra("isFromRegister", "Yes");
+
+                                            startActivity(intent);
+                                            finish();
+//
+
+
+                                        }
+                                    }
+                                });
+
 
                             }
                         });
 
-                Toast.makeText(RegisterActivity.this, token[0], Toast.LENGTH_SHORT).show();
-
-                 */
-
-
-                User user = new User(name, email, " ", "0", mobile, " ", mAuth.getCurrentUser().getUid(), referId);
-
-                SharedPreferences prefs = getSharedPreferences("Refer_data", 0);
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putString("id", referId);
-                editor.apply();
-
-                mRootRef.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-
-
-                            pd.dismiss();
-
-                            Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-                            intent.putExtra("referal", referal);
-                            intent.putExtra("isFromRegister", "Yes");
-
-                            startActivity(intent);
-                            finish();
-//
-
-
-                        }
-                    }
-                });
 
             }
         }).addOnFailureListener(new OnFailureListener() {

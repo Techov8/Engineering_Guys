@@ -185,6 +185,7 @@
     <orderEntry type="library" name="Gradle: com.android.support:exifinterface:27.1.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.github.chrisbanes:PhotoView:2.3.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.odml:image:1.0.0-beta1@aar" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.denzcoskun:ImageSlideshow:0.1.0@aar" level="project" />
     <orderEntry type="module" module-name="Engineer_Guys.nativetemplates" />
   </component>
 </module>
