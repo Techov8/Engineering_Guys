@@ -5,21 +5,51 @@ public class User {
     private String name;
     private String email;
 
-    private String username;
+    private String fcmtoken;
+    private String no_of_coins;
     private String mobile;
     private String imageurl;
     private String id;
+    private String refer_id;
+
+
 
     public User() {
     }
 
-    public User(String name, String email, String username, String mobile, String imageurl, String id) {
+    public User(String name, String email, String fcmtoken, String no_of_coins, String mobile, String imageurl, String id, String refer_id) {
         this.name = name;
         this.email = email;
-        this.username = username;
+        this.fcmtoken = fcmtoken;
+        this.no_of_coins = no_of_coins;
         this.mobile = mobile;
         this.imageurl = imageurl;
         this.id = id;
+        this.refer_id = refer_id;
+    }
+
+    public String getFcmtoken() {
+        return fcmtoken;
+    }
+
+    public void setFcmtoken(String fcmtoken) {
+        this.fcmtoken = fcmtoken;
+    }
+
+    public String getNo_of_coins() {
+        return no_of_coins;
+    }
+
+    public void setNo_of_coins(String no_of_coins) {
+        this.no_of_coins = no_of_coins;
+    }
+
+    public String getRefer_id() {
+        return refer_id;
+    }
+
+    public void setRefer_id(String refer_id) {
+        this.refer_id = refer_id;
     }
 
     public String getName() {
@@ -38,13 +68,7 @@ public class User {
         this.email = email;
     }
 
-    public String getUsername() {
-        return username;
-    }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
 
     public String getMobile() {
         return mobile;

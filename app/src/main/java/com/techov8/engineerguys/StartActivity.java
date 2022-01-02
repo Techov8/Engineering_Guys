@@ -32,7 +32,7 @@ public class StartActivity extends AppCompatActivity {
 
         linearLayout.animate().alpha(0f).setDuration(10);
 
-        TranslateAnimation animation = new TranslateAnimation(0 , 0 , 0 , -1500);
+        TranslateAnimation animation = new TranslateAnimation(0, 0, 0, -1500);
         animation.setDuration(1000);
         animation.setFillAfter(false);
         animation.setAnimationListener(new MyAnimationListener());
@@ -42,14 +42,14 @@ public class StartActivity extends AppCompatActivity {
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(StartActivity.this , RegisterActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                startActivity(new Intent(StartActivity.this, RegisterActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP));
             }
         });
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(StartActivity.this , LoginActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                startActivity(new Intent(StartActivity.this, LoginActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP));
             }
         });
 
@@ -81,8 +81,13 @@ public class StartActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        if (FirebaseAuth.getInstance().getCurrentUser() != null){
-            startActivity(new Intent(StartActivity.this , MainActivity.class));
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            Intent intent = new Intent(StartActivity.this, MainActivity.class);
+
+         //  intent.putExtra("coin", "noOfCoins");
+         //  intent.putExtra("user", "username");
+         //intent.putExtra("isFromRegister", "No");
+            startActivity(intent);
             finish();
         }
     }
