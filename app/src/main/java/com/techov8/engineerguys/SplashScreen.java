@@ -43,7 +43,7 @@ public class SplashScreen extends AppCompatActivity {
                 public void onAdDismissedFullScreenContent() {
                     // Called when fullscreen content is dismissed.
                     Log.d("TAG", "The ad was dismissed.");
-                    startActivity(new Intent(getApplicationContext(),StartActivity.class));
+                    startActivity(new Intent(getApplicationContext(),LoginActivity.class));
                     finish();
 
                 }

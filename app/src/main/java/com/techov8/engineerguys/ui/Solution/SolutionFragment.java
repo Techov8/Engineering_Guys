@@ -12,8 +12,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.denzcoskun.imageslider.constants.ScaleTypes;
+import com.denzcoskun.imageslider.interfaces.ItemClickListener;
+import com.denzcoskun.imageslider.models.SlideModel;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.techov8.engineerguys.R;
 import com.techov8.engineerguys.ui.AskQuestion.HomeFragment;
+
+import java.util.ArrayList;
 
 
 public class SolutionFragment extends Fragment {
@@ -22,8 +28,9 @@ public class SolutionFragment extends Fragment {
     private ProgressBar progressBar;
 
     private SolutionAdapter adapter;
-
+    private ArrayList<SolutionData> list = new ArrayList<>();
     private TextView nodata;
+    private static int DATA = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -35,23 +42,57 @@ public class SolutionFragment extends Fragment {
         nodata = view.findViewById(R.id.nodata);
 
         deleteNoticeRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
-        deleteNoticeRecycler.setHasFixedSize(true);
+        // deleteNoticeRecycler.setHasFixedSize(true);
 
-        if (HomeFragment.list.size() != 0) {
-            adapter = new SolutionAdapter(getContext(), HomeFragment.list);
-            adapter.notifyDataSetChanged();
-            progressBar.setVisibility(View.GONE);
-
-            deleteNoticeRecycler.setAdapter(adapter);
-        } else {
-            progressBar.setVisibility(View.GONE);
-
-            nodata.setVisibility(View.VISIBLE);
-
-
-        }
+        readData();
 
         return view;
+    }
+
+    private void readData() {
+
+        FirebaseFirestore.getInstance().collection("Newsfeed").document("RJJp67t64krBQ1HQMe1u")
+
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+
+
+                        long no_of_answer = task.getResult().getLong("no_of_answer");
+
+                        for (long y = 1; y < no_of_answer + 1; y++) {
+
+                            list.add(new SolutionData(task.getResult().getString("question_details_" + y),
+                                    task.getResult().getString("answer_image_" + y),
+                                    task.getResult().getString("answer_time_" + y),
+                                    task.getResult().getString("answer_text_" + y),
+                                    task.getResult().getId()));
+
+                        }
+
+                        if (list.size() != 0) {
+                            //adapter.notifyItemRangeRemoved(0,HomeFragment.list.size()-1);
+                            adapter = new SolutionAdapter(getContext(), list);
+                            deleteNoticeRecycler.setAdapter(adapter);
+                            adapter.notifyDataSetChanged();
+
+                            progressBar.setVisibility(View.GONE);
+
+
+                        } else {
+
+                            progressBar.setVisibility(View.GONE);
+
+                            nodata.setVisibility(View.VISIBLE);
+
+
+                        }
+
+
+                    }
+
+
+                });
     }
 
 }

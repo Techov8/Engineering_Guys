@@ -38,7 +38,6 @@
 
         <activity android:name=".LoginActivity" />
         <activity android:name=".RegisterActivity" />
-        <activity android:name=".StartActivity" />
         <activity android:name=".About_Us" />
         <activity android:name=".EditProfileActivity"
             android:theme="@style/Theme.NoActionBar"/>

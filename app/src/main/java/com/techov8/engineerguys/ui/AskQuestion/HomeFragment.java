@@ -30,12 +30,9 @@ import com.google.android.gms.ads.initialization.OnInitializationCompleteListene
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.techov8.engineerguys.MainActivity;
 import com.techov8.engineerguys.R;
@@ -49,8 +46,6 @@ import static com.techov8.engineerguys.MainActivity.noOfCoins;
 
 public class HomeFragment extends Fragment {
 
-    private Button sendquestion, earnbtn;
-
     private DatabaseReference mref;
     private FirebaseAuth mAuth;
 
@@ -62,7 +57,8 @@ public class HomeFragment extends Fragment {
     ImageSlider imageSlider;
     public static boolean isAdActive, isRatingCoin;
     public static ArrayList<SolutionData> list = new ArrayList<>();
-    private  AdRequest adRequest;
+    private AdRequest adRequest;
+    private List<SlideModel> imageSliderList;
 
 
     @Override
@@ -71,8 +67,8 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        sendquestion = view.findViewById(R.id.sendbtn);
-        earnbtn = view.findViewById(R.id.earnbtn);
+        Button sendquestion = view.findViewById(R.id.sendbtn);
+        Button earnbtn = view.findViewById(R.id.earnbtn);
 
         mref = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
@@ -84,55 +80,12 @@ public class HomeFragment extends Fragment {
         firebaseFirestore = FirebaseFirestore.getInstance();
         imageSlider = view.findViewById(R.id.image_slider);
 
-        final List<SlideModel> imageSliderList = new ArrayList<SlideModel>();
+        imageSliderList = new ArrayList<>();
 
+        if (imageSliderList.size() == 0) {
+            readData();
+        }
 
-        ///////
-        firebaseFirestore.collection("Newsfeed").document("RJJp67t64krBQ1HQMe1u")
-
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-
-
-                            isAdActive = task.getResult().getBoolean("is_ad_active");
-                            isRatingCoin = task.getResult().getBoolean("is_rating_coin");
-                            long no_of_banners = task.getResult().getLong("no_of_banners");
-                            long no_of_answer = task.getResult().getLong("no_of_answer");
-                            for (long x = 1; x < no_of_banners + 1; x++) {
-                                imageSliderList.add(new SlideModel(task.getResult().getString("banner_" + x + "_url")
-                                        , task.getResult().getString("banner_" + x + "_title"), ScaleTypes.FIT));
-
-
-                                imageSlider.setImageList(imageSliderList, ScaleTypes.FIT);
-
-                                for (long y = 1; y < no_of_answer + 1; y++) {
-
-
-                                    list.add(0, new SolutionData(task.getResult().getString("answer_details_" + y),
-                                            task.getResult().getString("answer_image_" + y),
-                                            task.getResult().getString("answer_date_" + y),
-                                            task.getResult().getString("answer_text_" + y),
-                                            task.getResult().getId()));
-
-                                }
-
-
-                                imageSlider.setItemClickListener(new ItemClickListener() {
-                                    @Override
-                                    public void onItemSelected(int i) {
-
-                                    }
-                                });
-
-                            }
-
-
-                        }
-                    }
-                });
 
         //home page data code end!
 
@@ -168,7 +121,7 @@ public class HomeFragment extends Fragment {
         if (isAdActive) {
             mAdView.setVisibility(View.VISIBLE);
             mAdView.loadAd(adRequest);
-        }else{
+        } else {
             mAdView.setVisibility(View.GONE);
         }
 
@@ -232,6 +185,42 @@ public class HomeFragment extends Fragment {
 
 
         return view;
+    }
+
+    private void readData() {
+        ///////
+        firebaseFirestore.collection("Newsfeed").document("RJJp67t64krBQ1HQMe1u")
+
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+
+
+                        isAdActive = task.getResult().getBoolean("is_ad_active");
+                        isRatingCoin = task.getResult().getBoolean("is_rating_coin");
+                        long no_of_banners = task.getResult().getLong("no_of_banners");
+                        long no_of_answer = task.getResult().getLong("no_of_answer");
+                        for (long x = 1; x < no_of_banners + 1; x++) {
+                            imageSliderList.add(new SlideModel(task.getResult().getString("banner_" + x + "_url")
+                                    , task.getResult().getString("banner_" + x + "_title"), ScaleTypes.FIT));
+
+
+                            imageSlider.setImageList(imageSliderList, ScaleTypes.FIT);
+
+
+                            imageSlider.setItemClickListener(new ItemClickListener() {
+                                @Override
+                                public void onItemSelected(int i) {
+
+                                }
+                            });
+
+                        }
+
+
+                    }
+                });
+
     }
 
     private void loadRewardedAd() {
