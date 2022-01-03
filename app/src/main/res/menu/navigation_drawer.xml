@@ -7,9 +7,9 @@
 
     <item android:id="@+id/navigation_rateUs"
         android:title="Rate Us"
-        android:icon="@drawable/share"/>
+        android:icon="@drawable/ic_baseline_star_rate_24"/>
     <item android:id="@+id/navigation_share"
-        android:title="Share"
+        android:title="Refer &amp; earn"
         android:icon="@drawable/share"/>
 
     <item android:id="@+id/navigation_privacy"

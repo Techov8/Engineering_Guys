@@ -49,6 +49,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.play.core.tasks.OnSuccessListener;
 import com.google.android.play.core.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -73,6 +74,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ActionBarDrawerToggle toggle;
     private NavigationView navigationView;
 
+
+    TextView fullname,email;
+
     private int REQUEST_CODE = 11;
     private Dialog referDialog;
     public static boolean isTestAd = true;
@@ -81,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private String isFromRegister = "No";
     private String referId;
-    public static String noOfCoins = "0";
+    public  static String noOfCoins = "0";
 
 
     private DatabaseReference mref, mRootRef, muser;
@@ -101,11 +105,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         muser = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
 
+
+
+
+
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         navController = Navigation.findNavController(this, R.id.frame_layout);
 
         drawerLayout = findViewById(R.id.drawerLayout);
         navigationView = findViewById(R.id.navigation_view);
+
+
+        View header = navigationView.getHeaderView(0);
+
+        fullname=header.findViewById(R.id.headerName);
+        email=header.findViewById(R.id.headerEmail);
+
+
+        FirebaseUser usero = FirebaseAuth.getInstance().getCurrentUser();
+        email.setText(Objects.requireNonNull(usero).getEmail());
 
         toggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.start, R.string.close);
         drawerLayout.addDrawerListener(toggle);
@@ -231,6 +249,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 mTitleTextView.setText(noOfCoins);
 
 
+
+
                 mActionBar.setCustomView(mCustomView, new ActionBar.LayoutParams(
                         ActionBar.LayoutParams.WRAP_CONTENT,
                         ActionBar.LayoutParams.MATCH_PARENT,
@@ -265,6 +285,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         referText.setText("Your Refer Id :- " + referId);
         shareBtn.setOnClickListener(view -> {
             try {
+                referDialog.dismiss();
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
                 shareIntent.setType("text/plain");
                 shareIntent.putExtra(Intent.EXTRA_SUBJECT, "My application name");
