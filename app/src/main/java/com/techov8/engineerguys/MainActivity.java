@@ -55,6 +55,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.techov8.engineerguys.ui.AskQuestion.HomeFragment;
 import com.techov8.engineerguys.ui.Profile.User;
 
 import java.util.Objects;
@@ -380,7 +381,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onBackPressed() {
 
-        if (mInterstitialAd != null) {
+        if (mInterstitialAd != null && HomeFragment.isAdActive) {
             mInterstitialAd.show(this);
             mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
                 @Override

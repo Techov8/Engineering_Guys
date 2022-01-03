@@ -28,6 +28,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -88,37 +89,33 @@ public class JobFragment extends Fragment {
 
     private void csDepartment() {
 
-        db.collection("Jobs").
-                get().
-                addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+        db.collection("Jobs").document("EzMoNkCNVyS4QXCqdenn")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        long no_of_items = task.getResult().getLong("no_of_items");
+                        for (long x = 1; x < no_of_items + 1; x++) {
 
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot documentSnapshots : task.getResult()) {
+                            list1.add(new JobData(task.getResult().getString("item_"+x+"_title"),
+                                    task.getResult().getString("item_"+x+"_salary"),
+                                    task.getResult().getString("item_"+x+"_post"),
+                                    task.getResult().getString("item_"+x+"_image"),
+                                    task.getResult().getString("item_"+x+"_info"),
+                                    task.getResult().getId(),
+                                    task.getResult().getString("item_"+x+"_link")));
 
 
-                                list1.add(new JobData(documentSnapshots.get("jobtitle").toString(), documentSnapshots.get("salary").toString(),
-                                        documentSnapshots.get("post").toString(),
-                                        documentSnapshots.get("image").toString(), documentSnapshots.get("additionalinfo").toString(),
-                                        documentSnapshots.getId().toString(), documentSnapshots.get("link").toString()));
-
-                            }
-
-                            progressBar.setVisibility(View.GONE);
-                            csDepartment.setHasFixedSize(true);
-                            csDepartment.setLayoutManager(new LinearLayoutManager(getContext()));
-                            adapter = new JobAdapter(list1, getContext());
-                            csDepartment.setAdapter(adapter);
-                        } else {
-                            Toast.makeText(getContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
-
+                        progressBar.setVisibility(View.GONE);
+                        csDepartment.setHasFixedSize(true);
+                        csDepartment.setLayoutManager(new LinearLayoutManager(getContext()));
+                        adapter = new JobAdapter(list1, getContext());
+                        csDepartment.setAdapter(adapter);
+                    } else {
+                        Toast.makeText(getContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
 
-
     }
-
 
 }

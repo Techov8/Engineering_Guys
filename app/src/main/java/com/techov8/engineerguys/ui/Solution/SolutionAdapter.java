@@ -24,6 +24,7 @@ import com.squareup.picasso.Picasso;
 import com.techov8.engineerguys.FullImageView;
 import com.techov8.engineerguys.MainActivity;
 import com.techov8.engineerguys.R;
+import com.techov8.engineerguys.ui.AskQuestion.HomeFragment;
 
 
 import java.util.ArrayList;
@@ -51,7 +52,6 @@ public class SolutionAdapter extends RecyclerView.Adapter<SolutionAdapter.Notice
         final SolutionData currentItem = list.get(position);
         holder.deleteNoticeTitle.setText(currentItem.getTitle());
         holder.date.setText(currentItem.getData());
-        holder.time.setText(currentItem.getTime());
 
         try {
             if (currentItem.getImage() != null)
@@ -78,7 +78,7 @@ public class SolutionAdapter extends RecyclerView.Adapter<SolutionAdapter.Notice
 
     public class NoticeViewAdapter extends RecyclerView.ViewHolder {
 
-        private TextView deleteNoticeTitle, date, time;
+        private TextView deleteNoticeTitle, date;
         private ImageView deleteNoticeImage;
         private final TemplateView nativeTemplateView;
         private String NATIVE_AD_ID;
@@ -89,7 +89,6 @@ public class SolutionAdapter extends RecyclerView.Adapter<SolutionAdapter.Notice
             deleteNoticeTitle = itemView.findViewById(R.id.deleteNoticeTitle);
             deleteNoticeImage = itemView.findViewById(R.id.deleteNoticeImage);
             date = itemView.findViewById(R.id.date);
-            time = itemView.findViewById(R.id.time);
             nativeTemplateView = itemView.findViewById(R.id.nativeTemplateView);
 
             if (MainActivity.isTestAd) {
@@ -98,20 +97,26 @@ public class SolutionAdapter extends RecyclerView.Adapter<SolutionAdapter.Notice
                 NATIVE_AD_ID = "ca-app-pub-4594073781530728/7289476317";
             }
 
-            MobileAds.initialize(itemView.getContext());
-            AdLoader adLoader = new AdLoader.Builder(itemView.getContext(), NATIVE_AD_ID)
-                    .forNativeAd(nativeAd -> {
-                        ColorDrawable colorDrawable = new ColorDrawable(ContextCompat.getColor(itemView.getContext(), R.color.white));
-                        NativeTemplateStyle styles = new
-                                NativeTemplateStyle.Builder().withMainBackgroundColor(colorDrawable).build();
+            if (HomeFragment.isAdActive) {
+                nativeTemplateView.setVisibility(View.VISIBLE);
+                MobileAds.initialize(itemView.getContext());
+                AdLoader adLoader = new AdLoader.Builder(itemView.getContext(), NATIVE_AD_ID)
+                        .forNativeAd(nativeAd -> {
+                            ColorDrawable colorDrawable = new ColorDrawable(ContextCompat.getColor(itemView.getContext(), R.color.white));
+                            NativeTemplateStyle styles = new
+                                    NativeTemplateStyle.Builder().withMainBackgroundColor(colorDrawable).build();
 
-                        nativeTemplateView.setStyles(styles);
-                        nativeTemplateView.setNativeAd(nativeAd);
-                    })
-                    .build();
+                            nativeTemplateView.setStyles(styles);
+                            nativeTemplateView.setNativeAd(nativeAd);
+                        })
+                        .build();
 
-            adLoader.loadAd(new AdRequest.Builder().build());
+                adLoader.loadAd(new AdRequest.Builder().build());
+            } else {
+                nativeTemplateView.setVisibility(View.GONE);
+            }
         }
+
 
     }
 

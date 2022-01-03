@@ -23,6 +23,7 @@ import com.google.android.gms.ads.MobileAds;
 import com.squareup.picasso.Picasso;
 import com.techov8.engineerguys.MainActivity;
 import com.techov8.engineerguys.R;
+import com.techov8.engineerguys.ui.AskQuestion.HomeFragment;
 
 
 import java.util.List;
@@ -72,6 +73,24 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.TeacherViewAdapt
         } catch (Exception e) {
             e.printStackTrace();
         }
+        if (position % 3 == 0 && position != 0 && HomeFragment.isAdActive) {
+            holder.nativeTemplateView.setVisibility(View.VISIBLE);
+            MobileAds.initialize(holder.itemView.getContext());
+            AdLoader adLoader = new AdLoader.Builder(holder.itemView.getContext(), holder.NATIVE_AD_ID)
+                    .forNativeAd(nativeAd -> {
+                        ColorDrawable colorDrawable = new ColorDrawable(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
+                        NativeTemplateStyle styles = new
+                                NativeTemplateStyle.Builder().withMainBackgroundColor(colorDrawable).build();
+
+                        holder.nativeTemplateView.setStyles(styles);
+                        holder.nativeTemplateView.setNativeAd(nativeAd);
+                    })
+                    .build();
+
+            adLoader.loadAd(new AdRequest.Builder().build());
+        } else {
+            holder.nativeTemplateView.setVisibility(View.GONE);
+        }
 
 
     }
@@ -83,7 +102,7 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.TeacherViewAdapt
 
     public class TeacherViewAdapter extends RecyclerView.ViewHolder {
 
-        private TextView Jobname, email, post,additionalinfo;
+        private TextView Jobname, email, post, additionalinfo;
         private ImageView imageView;
         private Button applybutton;
         private final TemplateView nativeTemplateView;
@@ -108,19 +127,7 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.TeacherViewAdapt
                 NATIVE_AD_ID = "ca-app-pub-4594073781530728/7289476317";
             }
 
-            MobileAds.initialize(itemView.getContext());
-            AdLoader adLoader = new AdLoader.Builder(itemView.getContext(), NATIVE_AD_ID)
-                    .forNativeAd(nativeAd -> {
-                        ColorDrawable colorDrawable = new ColorDrawable(ContextCompat.getColor(itemView.getContext(), R.color.white));
-                        NativeTemplateStyle styles = new
-                                NativeTemplateStyle.Builder().withMainBackgroundColor(colorDrawable).build();
 
-                        nativeTemplateView.setStyles(styles);
-                        nativeTemplateView.setNativeAd(nativeAd);
-                    })
-                    .build();
-
-            adLoader.loadAd(new AdRequest.Builder().build());
         }
     }
 

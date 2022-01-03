@@ -14,6 +14,7 @@ import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.techov8.engineerguys.ui.AskQuestion.HomeFragment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,7 +36,7 @@ public class SplashScreen extends AppCompatActivity {
         }
         loadAd();
 
-        if (mInterstitialAd != null) {
+        if (mInterstitialAd != null && HomeFragment.isAdActive) {
             mInterstitialAd.show(this);
             mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
                 @Override

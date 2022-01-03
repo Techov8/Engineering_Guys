@@ -1,23 +1,16 @@
 package com.techov8.engineerguys.ui.AskQuestion;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 
 import com.denzcoskun.imageslider.ImageSlider;
@@ -42,18 +35,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.techov8.engineerguys.MainActivity;
 import com.techov8.engineerguys.R;
+import com.techov8.engineerguys.ui.Solution.SolutionData;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import static com.techov8.engineerguys.MainActivity.noOfCoins;
 
@@ -71,6 +60,9 @@ public class HomeFragment extends Fragment {
     boolean isLoading;
     private FirebaseFirestore firebaseFirestore;
     ImageSlider imageSlider;
+    public static boolean isAdActive, isRatingCoin;
+    public static ArrayList<SolutionData> list = new ArrayList<>();
+    private  AdRequest adRequest;
 
 
     @Override
@@ -96,25 +88,37 @@ public class HomeFragment extends Fragment {
 
 
         ///////
-        firebaseFirestore.collection("Newsfeed").
+        firebaseFirestore.collection("Newsfeed").document("RJJp67t64krBQ1HQMe1u")
 
-                get().
-                addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot documentSnapshots : task.getResult()) {
 
 
-                                long no_of_banners = (long) documentSnapshots.get("no_of_banners");
-                                for (long x = 1; x < no_of_banners + 1; x++) {
-                                    imageSliderList.add(new SlideModel(documentSnapshots.get("banner_" + x + "_url").toString()
-                                            , documentSnapshots.get("banner_" + x + "_title").toString(), ScaleTypes.FIT));
+                            isAdActive = task.getResult().getBoolean("is_ad_active");
+                            isRatingCoin = task.getResult().getBoolean("is_rating_coin");
+                            long no_of_banners = task.getResult().getLong("no_of_banners");
+                            long no_of_answer = task.getResult().getLong("no_of_answer");
+                            for (long x = 1; x < no_of_banners + 1; x++) {
+                                imageSliderList.add(new SlideModel(task.getResult().getString("banner_" + x + "_url")
+                                        , task.getResult().getString("banner_" + x + "_title"), ScaleTypes.FIT));
+
+
+                                imageSlider.setImageList(imageSliderList, ScaleTypes.FIT);
+
+                                for (long y = 1; y < no_of_answer + 1; y++) {
+
+
+                                    list.add(0, new SolutionData(task.getResult().getString("answer_details_" + y),
+                                            task.getResult().getString("answer_image_" + y),
+                                            task.getResult().getString("answer_date_" + y),
+                                            task.getResult().getString("answer_text_" + y),
+                                            task.getResult().getId()));
+
                                 }
 
-
-                                imageSlider.setImageList(imageSliderList,ScaleTypes.FIT);
 
                                 imageSlider.setItemClickListener(new ItemClickListener() {
                                     @Override
@@ -126,12 +130,10 @@ public class HomeFragment extends Fragment {
                             }
 
 
-                        } else {
-                            // Toast.makeText(getContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
-
                     }
                 });
+
         //home page data code end!
 
 
@@ -161,10 +163,14 @@ public class HomeFragment extends Fragment {
             public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
-
         mAdView = view.findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+        adRequest = new AdRequest.Builder().build();
+        if (isAdActive) {
+            mAdView.setVisibility(View.VISIBLE);
+            mAdView.loadAd(adRequest);
+        }else{
+            mAdView.setVisibility(View.GONE);
+        }
 
 
         mAdView.setAdListener(new AdListener() {
@@ -303,12 +309,10 @@ public class HomeFragment extends Fragment {
                         String rewardType = rewardItem.getType();
 
 
-
-                      mref.child("Users").child(mAuth.getCurrentUser().getUid()).child("no_of_coins").setValue(String.valueOf(rewardAmount + Integer.parseInt(noOfCoins)));
-
+                        mref.child("Users").child(mAuth.getCurrentUser().getUid()).child("no_of_coins").setValue(String.valueOf(rewardAmount + Integer.parseInt(noOfCoins)));
 
 
-                        Toast.makeText(getContext(), rewardAmount+" coin added", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), rewardAmount + " coin added", Toast.LENGTH_SHORT).show();
                         // Supriyo do coin work
                     }
                 });
