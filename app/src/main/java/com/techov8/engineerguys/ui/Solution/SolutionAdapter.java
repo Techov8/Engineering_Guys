@@ -79,7 +79,7 @@ public class SolutionAdapter extends RecyclerView.Adapter<SolutionAdapter.Notice
         holder.fullsolution.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               if(Integer.parseInt(noOfCoins)>5) {
+               if(Integer.parseInt(noOfCoins)>=5) {
 
                   // Log.e("hnnnnn", "yyyyy" + noOfCoins);
                    Intent intent = new Intent(context, FullSolutionActivity.class);

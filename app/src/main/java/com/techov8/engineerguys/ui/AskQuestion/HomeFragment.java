@@ -212,6 +212,14 @@ public class HomeFragment extends Fragment {
                                 @Override
                                 public void onItemSelected(int i) {
 
+                                    Log.e("urllll","ye hai  "+i);
+
+                                   String n= imageSliderList.get(i).getImageUrl().toString();
+
+                                    Intent in = new Intent(Intent.ACTION_VIEW);
+                                    in.setData(Uri.parse(n));
+                                    startActivity(in);
+
                                 }
                             });
 
