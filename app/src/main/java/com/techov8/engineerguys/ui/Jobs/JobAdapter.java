@@ -124,7 +124,7 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.TeacherViewAdapt
             if (MainActivity.isTestAd) {
                 NATIVE_AD_ID = "ca-app-pub-3940256099942544/2247696110";
             } else {
-                NATIVE_AD_ID = "ca-app-pub-4594073781530728/7289476317";
+                NATIVE_AD_ID = "ca-app-pub-3197714952509994/3964795620";
             }
 
 

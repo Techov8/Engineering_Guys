@@ -18,7 +18,7 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-4952923992420870~5604833904" />
+            android:value="ca-app-pub-3197714952509994~5976715447" />
 
         <activity
             android:name=".FullImageView"

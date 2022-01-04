@@ -51,7 +51,7 @@ public class HomeFragment extends Fragment {
 
     private AdView mAdView;
     private RewardedAd rewardedAdMain;
-    private static String VIDEO_AD_UNIT_ID;
+    private static String VIDEO_AD_UNIT_ID,BANNER_AD_UNIT;
     boolean isLoading;
     private FirebaseFirestore firebaseFirestore;
     ImageSlider imageSlider;
@@ -97,10 +97,12 @@ public class HomeFragment extends Fragment {
 
         if (MainActivity.isTestAd) {
             VIDEO_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917";
+            BANNER_AD_UNIT="ca-app-pub-3940256099942544/6300978111";
         } else {
-            VIDEO_AD_UNIT_ID = "ca-app-pub-4594073781530728/7481048002";
+            VIDEO_AD_UNIT_ID = "ca-app-pub-3197714952509994/6884981747";
+            BANNER_AD_UNIT="ca-app-pub-3197714952509994/9724388763";
         }
-        loadRewardedAd();
+
 
         earnbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,20 +112,23 @@ public class HomeFragment extends Fragment {
         });
 
         /////ads
-
+        mAdView = view.findViewById(R.id.adView);
         MobileAds.initialize(getContext(), new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
-        mAdView = view.findViewById(R.id.adView);
         adRequest = new AdRequest.Builder().build();
+
         if (isAdActive) {
-            mAdView.setVisibility(View.VISIBLE);
             mAdView.loadAd(adRequest);
+            mAdView.setVisibility(View.VISIBLE);
+            loadRewardedAd();
         } else {
             mAdView.setVisibility(View.GONE);
         }
+
+
 
 
         mAdView.setAdListener(new AdListener() {
@@ -159,27 +164,22 @@ public class HomeFragment extends Fragment {
 
         ///
 
+        sendquestion.setOnClickListener(arg0 -> {
 
-        sendquestion.setOnClickListener(new View.OnClickListener() {
+            try {
 
-            @Override
-            public void onClick(View arg0) {
-
-
-                try {
-
-                    Intent intent = new Intent(Intent.ACTION_SENDTO);
-                    intent.setType("plain/text");
-                    intent.setData(Uri.parse("mailto:")); // only email apps should handle this
-                    intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"fake@edu"});
-                    intent.putExtra(Intent.EXTRA_SUBJECT, "Question");
-                    intent.putExtra(Intent.EXTRA_TEXT, "Write your question or attach photo");
-                    if (intent.resolveActivity(getContext().getPackageManager()) != null) {
-                        startActivity(intent);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+                intent.setType("plain/text");
+//                intent.setDataAndType(Uri.parse("mailto:"),"plain/text");
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"fake@edu"});
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Question");
+                intent.putExtra(Intent.EXTRA_TEXT, "Write your question or attach photo");
+                if (intent.resolveActivity(getContext().getPackageManager()) != null) {
+                    startActivity(intent);
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
 
@@ -199,7 +199,6 @@ public class HomeFragment extends Fragment {
                         isAdActive = task.getResult().getBoolean("is_ad_active");
                         isRatingCoin = task.getResult().getBoolean("is_rating_coin");
                         long no_of_banners = task.getResult().getLong("no_of_banners");
-                        long no_of_answer = task.getResult().getLong("no_of_answer");
                         for (long x = 1; x < no_of_banners + 1; x++) {
                             imageSliderList.add(new SlideModel(task.getResult().getString("banner_" + x + "_url")
                                     , task.getResult().getString("banner_" + x + "_title"), ScaleTypes.FIT));
@@ -224,6 +223,7 @@ public class HomeFragment extends Fragment {
                             });
 
                         }
+
 
 
                     }

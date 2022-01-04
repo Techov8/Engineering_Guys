@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (MainActivity.isTestAd) {
             AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712";
         } else {
-            AD_UNIT_ID = "ca-app-pub-4594073781530728/7010290628";
+            AD_UNIT_ID = "ca-app-pub-3197714952509994/6590958965";
         }
 
         loadAd();
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                                 if (counter < 1) {
 
-                                    mref.child("Users").child(post.getId()).child("no_of_coins").setValue(String.valueOf(Integer.parseInt(post.getNo_of_coins()) + 10));
+                                    mref.child("Users").child(post.getId()).child("no_of_coins").setValue(String.valueOf(Integer.parseInt(post.getNo_of_coins()) + 5));
 
 
                                     counter++;

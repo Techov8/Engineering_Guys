@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,14 +8,17 @@
     tools:context=".ui.AskQuestion.HomeFragment">
 
     <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="@dimen/text_margin">
 
@@ -36,25 +39,67 @@
                     app:iss_delay="0"
                     app:iss_period="1000" />
 
-                <Button
-                    android:id="@+id/sendbtn"
+                <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/adView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    ads:adSize="MEDIUM_RECTANGLE"
+                    ads:adUnitId="ca-app-pub-3197714952509994/9724388763" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/imageView2"
+                        android:layout_width="match_parent"
+                        android:layout_height="150dp"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/images"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/images" />
+
+                    <Button
+                        android:id="@+id/sendbtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="140dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/slider_background"
+                        android:padding="10sp"
+                        android:text="Ask Questions"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <TextView
+                    android:id="@+id/textView51"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="15sp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="15dp"
                     android:layout_weight="1"
-                    android:background="@drawable/slider_background"
-                    android:padding="10sp"
-                    android:text="Ask Questions" />
+                    android:padding="3dp"
+                    android:text="Don't have enough Coin?"
+                    android:textColor="#000000"
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/textView5"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:layout_marginTop="5dp"
                     android:layout_weight="1"
-                    android:gravity="center"
                     android:padding="3dp"
-                    android:text="Wanna earn coin ? click Earn button below."
+                    android:text="Wanna earn coin ? Watch video ad &amp; earn coin."
                     android:textColor="#000000"
                     android:textSize="18sp" />
 
@@ -63,23 +108,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="10sp"
-                    android:layout_weight="1"
-                    android:background="@drawable/slider_background"
+                    android:layout_marginBottom="40dp"
+                    android:background="@drawable/round_backgrnd"
                     android:padding="10sp"
-                    android:text="Earn " />
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:text="Watch"
+                    android:textSize="16sp" />
 
-                <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/adView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_centerHorizontal="true"
-                    ads:adSize="MEDIUM_RECTANGLE"
-                    ads:adUnitId="ca-app-pub-3940256099942544/6300978111"></com.google.android.gms.ads.AdView>
+
             </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
 
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
