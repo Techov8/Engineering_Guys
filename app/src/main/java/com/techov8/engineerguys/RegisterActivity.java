@@ -144,12 +144,13 @@ public class RegisterActivity extends AppCompatActivity {
                                 Log.e("fcm", "--" + token);
 
 
-                                User user = new User(name, email, token, "0", mobile, " ", mAuth.getCurrentUser().getUid(), referId);
+                                User user = new User(name, email, token, "0", mobile, " ", mAuth.getCurrentUser().getUid(), referId,referal,"1");
 
                                 SharedPreferences prefs = getSharedPreferences("Refer_data", 0);
                                 SharedPreferences.Editor editor = prefs.edit();
-                                editor.putString("id", referId);
-                                editor.apply();
+                               editor.putString("id", referId);
+
+                              editor.apply();
 
                                 mRootRef.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override

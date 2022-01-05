@@ -11,13 +11,15 @@ public class User {
     private String imageurl;
     private String id;
     private String refer_id;
+    private String refer_by;
+    private String refer_counter;
 
 
 
     public User() {
     }
 
-    public User(String name, String email, String fcmtoken, String no_of_coins, String mobile, String imageurl, String id, String refer_id) {
+    public User(String name, String email, String fcmtoken, String no_of_coins, String mobile, String imageurl, String id, String refer_id, String refer_by, String refer_counter) {
         this.name = name;
         this.email = email;
         this.fcmtoken = fcmtoken;
@@ -26,6 +28,24 @@ public class User {
         this.imageurl = imageurl;
         this.id = id;
         this.refer_id = refer_id;
+        this.refer_by = refer_by;
+        this.refer_counter = refer_counter;
+    }
+
+    public String getRefer_by() {
+        return refer_by;
+    }
+
+    public void setRefer_by(String refer_by) {
+        this.refer_by = refer_by;
+    }
+
+    public String getRefer_counter() {
+        return refer_counter;
+    }
+
+    public void setRefer_counter(String refer_counter) {
+        this.refer_counter = refer_counter;
     }
 
     public String getFcmtoken() {

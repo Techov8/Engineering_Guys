@@ -36,7 +36,9 @@ import com.techov8.engineerguys.ui.AskQuestion.HomeFragment;
 
 import java.util.ArrayList;
 
+import static com.techov8.engineerguys.MainActivity.isVerified;
 import static com.techov8.engineerguys.MainActivity.noOfCoins;
+import static com.techov8.engineerguys.MainActivity.passwordResetDialog;
 
 public class SolutionAdapter extends RecyclerView.Adapter<SolutionAdapter.NoticeViewAdapter> {
 
@@ -71,28 +73,37 @@ public class SolutionAdapter extends RecyclerView.Adapter<SolutionAdapter.Notice
         }
 
 
-
-       DatabaseReference mRootRef = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference mRootRef = FirebaseDatabase.getInstance().getReference();
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
         holder.fullsolution.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               if(Integer.parseInt(noOfCoins)>=5) {
 
-                  // Log.e("hnnnnn", "yyyyy" + noOfCoins);
-                   Intent intent = new Intent(context, FullSolutionActivity.class);
-                   intent.putExtra("image", currentItem.getImage());
-                   intent.putExtra("question", currentItem.getTitle());
-                   intent.putExtra("solution", currentItem.getTime());
-                   mRootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("no_of_coins").setValue(Integer.parseInt(noOfCoins)-5);
-                   context.startActivity(intent);
 
-               }
-               else{
-                   Toast.makeText(context,"Insufficent coins ! please earn.",Toast.LENGTH_SHORT).show();
-               }
+                if (Integer.parseInt(noOfCoins) >= 5) {
+
+                    if (isVerified) {
+
+                        // Log.e("hnnnnn", "yyyyy" + noOfCoins);
+                        Intent intent = new Intent(context, FullSolutionActivity.class);
+                        intent.putExtra("image", currentItem.getImage());
+                        intent.putExtra("question", currentItem.getTitle());
+                        intent.putExtra("solution", currentItem.getTime());
+                        mRootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("no_of_coins").setValue(Integer.parseInt(noOfCoins) - 5);
+                        context.startActivity(intent);
+
+                    } else {
+                        passwordResetDialog.show();
+                        passwordResetDialog.setCancelable(false);
+                    }
+
+                } else {
+                    Toast.makeText(context, "Insufficient coins ! please earn.", Toast.LENGTH_SHORT).show();
+                }
+
+
             }
         });
 
@@ -105,7 +116,7 @@ public class SolutionAdapter extends RecyclerView.Adapter<SolutionAdapter.Notice
 
     public class NoticeViewAdapter extends RecyclerView.ViewHolder {
 
-        private TextView deleteNoticeTitle, date,solutiontxt;
+        private TextView deleteNoticeTitle, date, solutiontxt;
         private ImageView deleteNoticeImage;
         private final TemplateView nativeTemplateView;
         private String NATIVE_AD_ID;
@@ -118,7 +129,7 @@ public class SolutionAdapter extends RecyclerView.Adapter<SolutionAdapter.Notice
             deleteNoticeImage = itemView.findViewById(R.id.deleteNoticeImage);
             date = itemView.findViewById(R.id.date);
             fullsolution = itemView.findViewById(R.id.viewolutiontxt);
-           solutiontxt= itemView.findViewById(R.id.Solutiontxt);
+            solutiontxt = itemView.findViewById(R.id.Solutiontxt);
             nativeTemplateView = itemView.findViewById(R.id.nativeTemplateView);
 
             if (MainActivity.isTestAd) {

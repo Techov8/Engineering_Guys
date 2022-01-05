@@ -5,7 +5,7 @@
 
     <item android:id="@+id/navigation_notice"
         android:icon="@drawable/notice"
-        android:title="SoltionFeed"/>
+        android:title="Soltion Feed"/>
 
     <item android:id="@+id/navigation_home"
         android:icon="@drawable/home"

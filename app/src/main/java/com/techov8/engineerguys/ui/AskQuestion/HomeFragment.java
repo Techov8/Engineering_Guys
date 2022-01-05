@@ -1,6 +1,10 @@
 package com.techov8.engineerguys.ui.AskQuestion;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +15,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.denzcoskun.imageslider.ImageSlider;
@@ -30,28 +35,40 @@ import com.google.android.gms.ads.initialization.OnInitializationCompleteListene
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.techov8.engineerguys.LoginActivity;
 import com.techov8.engineerguys.MainActivity;
 import com.techov8.engineerguys.R;
 import com.techov8.engineerguys.ui.Solution.SolutionData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+import static android.content.Context.CLIPBOARD_SERVICE;
+import static com.techov8.engineerguys.MainActivity.isVerified;
 import static com.techov8.engineerguys.MainActivity.noOfCoins;
+import static com.techov8.engineerguys.MainActivity.passwordResetDialog;
+import static com.techov8.engineerguys.RegisterActivity.referedId;
 
 
 public class HomeFragment extends Fragment {
+
+    private ClipboardManager myClipboard;
+    private ClipData myClip;
 
     private DatabaseReference mref;
     private FirebaseAuth mAuth;
 
     private AdView mAdView;
     private RewardedAd rewardedAdMain;
-    private static String VIDEO_AD_UNIT_ID,BANNER_AD_UNIT;
+    private static String VIDEO_AD_UNIT_ID, BANNER_AD_UNIT;
     boolean isLoading;
     private FirebaseFirestore firebaseFirestore;
     ImageSlider imageSlider;
@@ -59,6 +76,7 @@ public class HomeFragment extends Fragment {
     public static ArrayList<SolutionData> list = new ArrayList<>();
     private AdRequest adRequest;
     private List<SlideModel> imageSliderList;
+    private Button sendquestion, earnbtn;
 
 
     @Override
@@ -67,11 +85,133 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        Button sendquestion = view.findViewById(R.id.sendbtn);
-        Button earnbtn = view.findViewById(R.id.earnbtn);
+        sendquestion = view.findViewById(R.id.sendbtn);
+        earnbtn = view.findViewById(R.id.earnbtn);
 
         mref = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
+
+        myClipboard = (ClipboardManager) getContext().getSystemService(CLIPBOARD_SERVICE);
+
+        SharedPreferences prefs = getContext().getSharedPreferences("Refer_data",
+                0);
+        String referId = prefs.getString("id",
+                "no");
+
+        /////
+////////////////////////////////////////////////////////////////////////////////for email verification
+
+
+/*
+        if (!Objects.requireNonNull(mAuth.getCurrentUser()).isEmailVerified()) {
+
+
+            AlertDialog.Builder passwordResetDialog = new AlertDialog.Builder(getContext());
+            passwordResetDialog.setTitle("Email not verified");
+           // passwordResetDialog.setMessage("Enter Your Email To Receive Reset link ");
+           // passwordResetDialog.setView(resetMail);
+
+
+            passwordResetDialog.setPositiveButton("Verify now", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+
+                    mAuth.getCurrentUser().sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(getContext(), "Verification link Sent To Your Mail", Toast.LENGTH_SHORT).show();
+
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                            Toast.makeText(getContext(), "Error! verification link not sent" + e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
+
+                }
+            });
+
+          /*  passwordResetDialog.setNegativeButton("Not now", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+
+           */
+
+         //   passwordResetDialog.show();
+       //     passwordResetDialog.setCancelable(false);
+
+      //  }
+
+
+
+        sendquestion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                try {
+
+
+                    //Toast.makeText(getContext(),"clicked",Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(Intent.ACTION_SENDTO);
+                    intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+                    // intent.setType("plain/text");
+                    // intent.setDataAndType(Uri.parse("mailto:"), "plain/text");
+                    intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"engineeringguyzinfo@gmail.com"});
+                    intent.putExtra(Intent.EXTRA_SUBJECT, "Question by " + referId);
+                    intent.putExtra(Intent.EXTRA_TEXT, "Write your question or attach photo");
+                    if (intent.resolveActivity(requireContext().getPackageManager()) != null) {
+                        startActivity(intent);
+
+
+                    } else {
+                        Snackbar snackbar = Snackbar.make(view.findViewById(R.id.layout), "Please mail us your question on engineeringguyzinfo@gmail.com from your registered mail", Snackbar.LENGTH_LONG);
+                        snackbar.setAction("Copy mail ", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+
+                                //String text = textView.getText().toString();
+                                myClip = ClipData.newPlainText("text", "engineeringguyzinfo@gmail.com");
+                                myClipboard.setPrimaryClip(myClip);
+                                Toast.makeText(getContext(), "Mail Copied",
+                                        Toast.LENGTH_SHORT).show();
+
+                            }
+                        });
+                        snackbar.show();
+                    }
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+
+                    Snackbar snackbarr = Snackbar.make(view.findViewById(R.id.layout), "Please mail us your question on engineeringguyzinfo@gmail.com from your registered mail", Snackbar.LENGTH_LONG);
+                    snackbarr.setAction("Copy mail ", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            //String text = textView.getText().toString();
+                            myClip = ClipData.newPlainText("text", "engineeringguyzinfo@gmail.com");
+                            myClipboard.setPrimaryClip(myClip);
+                            Toast.makeText(getContext(), "Mail Copied",
+                                    Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
+                    snackbarr.show();
+                }
+
+            }
+        });
+        //////
 
 
 ///////////////////////////////////////////////////////////////////////////Banner slider
@@ -82,9 +222,9 @@ public class HomeFragment extends Fragment {
 
         imageSliderList = new ArrayList<>();
 
-        if (imageSliderList.size() == 0) {
-            readData();
-        }
+        //if (imageSliderList.size() == 0) {
+        readData();
+        // }
 
 
         //home page data code end!
@@ -97,17 +237,23 @@ public class HomeFragment extends Fragment {
 
         if (MainActivity.isTestAd) {
             VIDEO_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917";
-            BANNER_AD_UNIT="ca-app-pub-3940256099942544/6300978111";
+            // BANNER_AD_UNIT = "ca-app-pub-3940256099942544/6300978111";
         } else {
             VIDEO_AD_UNIT_ID = "ca-app-pub-3197714952509994/6884981747";
-            BANNER_AD_UNIT="ca-app-pub-3197714952509994/9724388763";
+            //BANNER_AD_UNIT = "ca-app-pub-3197714952509994/9724388763";
         }
 
 
         earnbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showRewardedVideo();
+
+                if (isVerified) {
+                    showRewardedVideo();
+                }else{
+                    passwordResetDialog.show();
+                    passwordResetDialog.setCancelable(false);
+                }
             }
         });
 
@@ -127,8 +273,6 @@ public class HomeFragment extends Fragment {
         } else {
             mAdView.setVisibility(View.GONE);
         }
-
-
 
 
         mAdView.setAdListener(new AdListener() {
@@ -164,25 +308,6 @@ public class HomeFragment extends Fragment {
 
         ///
 
-        sendquestion.setOnClickListener(arg0 -> {
-
-            try {
-
-                Intent intent = new Intent(Intent.ACTION_SENDTO);
-                intent.setData(Uri.parse("mailto:")); // only email apps should handle this
-                intent.setType("plain/text");
-//                intent.setDataAndType(Uri.parse("mailto:"),"plain/text");
-                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"fake@edu"});
-                intent.putExtra(Intent.EXTRA_SUBJECT, "Question");
-                intent.putExtra(Intent.EXTRA_TEXT, "Write your question or attach photo");
-                if (intent.resolveActivity(getContext().getPackageManager()) != null) {
-                    startActivity(intent);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
 
         return view;
     }
@@ -199,9 +324,11 @@ public class HomeFragment extends Fragment {
                         isAdActive = task.getResult().getBoolean("is_ad_active");
                         isRatingCoin = task.getResult().getBoolean("is_rating_coin");
                         long no_of_banners = task.getResult().getLong("no_of_banners");
-                        for (long x = 1; x < no_of_banners + 1; x++) {
+                        for (long x = 0; x < no_of_banners; x++) {
                             imageSliderList.add(new SlideModel(task.getResult().getString("banner_" + x + "_url")
                                     , task.getResult().getString("banner_" + x + "_title"), ScaleTypes.FIT));
+
+                            String k = task.getResult().getString("bannerpromo_" + x + "_link").toString();
 
 
                             imageSlider.setImageList(imageSliderList, ScaleTypes.FIT);
@@ -211,19 +338,20 @@ public class HomeFragment extends Fragment {
                                 @Override
                                 public void onItemSelected(int i) {
 
-                                    Log.e("urllll","ye hai  "+i);
+                                    Log.e("urllll", "ye hai  " + imageSliderList.get(i).getTitle().toString());
 
-                                   String n= imageSliderList.get(i).getImageUrl().toString();
+                                    String n = imageSliderList.get(i).getImageUrl().toString();
+                                    //task.getResult().getString("bannerpromo_"+ x +"_link").toString();
+                                    String k = task.getResult().getString("bannerpromo_" + i + "_link").toString();
 
                                     Intent in = new Intent(Intent.ACTION_VIEW);
-                                    in.setData(Uri.parse(n));
+                                    in.setData(Uri.parse(k));
                                     startActivity(in);
 
                                 }
                             });
 
                         }
-
 
 
                     }

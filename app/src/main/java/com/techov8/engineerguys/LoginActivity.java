@@ -27,7 +27,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText password;
     private Button login;
     private Button registerUser;
-private TextView forgotPassword;
+    private TextView forgotPassword;
     private FirebaseAuth mAuth;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +37,7 @@ private TextView forgotPassword;
         email = findViewById(R.id.email);
         password = findViewById(R.id.password);
         login = findViewById(R.id.login);
-      forgotPassword = findViewById(R.id.forgetpassword);
+        forgotPassword = findViewById(R.id.forgetpassword);
         registerUser = findViewById(R.id.register_user);
 
         mAuth = FirebaseAuth.getInstance();
@@ -58,8 +58,8 @@ private TextView forgotPassword;
             public void onClick(View v) {
 
 
-                final EditText resetMail=new EditText(v.getContext());
-                AlertDialog.Builder passwordResetDialog=new AlertDialog.Builder(v.getContext());
+                final EditText resetMail = new EditText(v.getContext());
+                AlertDialog.Builder passwordResetDialog = new AlertDialog.Builder(v.getContext());
                 passwordResetDialog.setTitle("Reset Password ?");
                 passwordResetDialog.setMessage("Enter Your Email To Receive Reset link ");
                 passwordResetDialog.setView(resetMail);
@@ -69,18 +69,18 @@ private TextView forgotPassword;
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        String mail=resetMail.getText().toString();
+                        String mail = resetMail.getText().toString();
                         mAuth.sendPasswordResetEmail(mail).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Toast.makeText(LoginActivity.this,"Reset Link Sent To Your Mail",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(LoginActivity.this, "Reset Link Sent To Your Mail", Toast.LENGTH_SHORT).show();
 
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
 
-                                Toast.makeText(LoginActivity.this,"Error! link not sent"+e.getMessage(),Toast.LENGTH_SHORT).show();
+                                Toast.makeText(LoginActivity.this, "Error! link not sent" + e.getMessage(), Toast.LENGTH_SHORT).show();
 
                             }
                         });
@@ -129,8 +129,8 @@ private TextView forgotPassword;
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(LoginActivity.this, "Update the profile " +
-                            "for better expereince", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(LoginActivity.this, "Update the profile " +
+                          //  "for better expereince", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 

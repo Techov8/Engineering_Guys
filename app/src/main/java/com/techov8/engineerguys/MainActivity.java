@@ -2,6 +2,7 @@ package com.techov8.engineerguys;
 
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
@@ -22,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -39,6 +41,7 @@ import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
@@ -75,6 +78,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavigationView navigationView;
 
 
+    public static AlertDialog.Builder passwordResetDialog;
+
+    public static Boolean isVerified=false;
+
+
     TextView fullname,email;
 
     private int REQUEST_CODE = 11;
@@ -84,13 +92,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private String AD_UNIT_ID, coin, username;
 
     private String isFromRegister = "No";
-    private String referId;
+   // private String referId;
     public  static String noOfCoins = "0";
+    public  static String refered_by = "0";
+    public  static String refer_counterr = "0";
+    public  static String referIdd ;
 
 
     private DatabaseReference mref, mRootRef, muser;
 
     private FirebaseAuth mAuth;
+
 
     private int counter = 0;
 
@@ -104,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mRootRef = FirebaseDatabase.getInstance().getReference();
         muser = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
+
 
 
 
@@ -172,14 +185,131 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 /////////////////////////////////
 
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+        ///// for showing coin to user
+        ActionBar mActionBar = getSupportActionBar();
+        mActionBar.setDisplayShowHomeEnabled(false);
+        mActionBar.setDisplayShowTitleEnabled(false);
+        LayoutInflater mInflater = LayoutInflater.from(this);
+
+        View mCustomView = mInflater.inflate(R.layout.custom_actionbar, null);
+        TextView mTitleTextView = (TextView) mCustomView.findViewById(R.id.title_text);
+
+
+        mRootRef.child("Users").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                for (DataSnapshot dataSnapshot: snapshot .getChildren()) {
+
+                    //noOfCoins = snapshot.getValue().toString();
+                    noOfCoins= snapshot.child("no_of_coins").getValue().toString();
+                    refered_by= snapshot.child("refer_by").getValue().toString();
+                    refer_counterr=snapshot.child("refer_counter").getValue().toString();
+                    referIdd=snapshot.child("refer_id").getValue().toString();
+
+                    mTitleTextView.setText(noOfCoins);
+
+
+                    mActionBar.setCustomView(mCustomView, new ActionBar.LayoutParams(
+                            ActionBar.LayoutParams.WRAP_CONTENT,
+                            ActionBar.LayoutParams.MATCH_PARENT,
+                            Gravity.RIGHT
+                    ));
+                    mActionBar.setDisplayShowCustomEnabled(true);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
+///// for showing coin to user till here
+
+
+////////////////////////////////////////////////////////////////////////////////for email verification
+
+         passwordResetDialog = new AlertDialog.Builder(this);
+        passwordResetDialog.setTitle("Email not verified");
+        // passwordResetDialog.setMessage("Enter Your Email To Receive Reset link ");
+        // passwordResetDialog.setView(resetMail);
+
+
+        passwordResetDialog.setPositiveButton("Verify now", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+
+                mAuth.getCurrentUser().sendEmailVerification().addOnSuccessListener(new com.google.android.gms.tasks.OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(@NonNull Void unused) {
+
+                        Toast.makeText(MainActivity.this, "Verification link Sent To Your Mail", Toast.LENGTH_SHORT).show();
+                        FirebaseAuth.getInstance().signOut();
+                        startActivity(new Intent(MainActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                        finish();
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                        Toast.makeText(MainActivity.this, "Verification link Not Sent To Your Mail", Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+
+            }
+        });
+
+
+
+
+
+        if (!mAuth.getCurrentUser().isEmailVerified()) {
+
+
+
+
+          /*  passwordResetDialog.setNegativeButton("Not now", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+
+           */
+
+          passwordResetDialog.show();
+          passwordResetDialog.setCancelable(false);
+          isVerified=false;
+
+
+        }else {
+            Toast.makeText(this, "Verified", Toast.LENGTH_SHORT).show();
+
+            isVerified=true;
+
+        }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////for adding coin to the rfrar
 
         Intent intent = getIntent();
 
-        String referal = intent.getStringExtra("referal");
-        isFromRegister = intent.getStringExtra("isFromRegister");
+       // String referal = intent.getStringExtra("referal");
+        //isFromRegister = intent.getStringExtra("isFromRegister");
 
-        if (referal != null && isFromRegister != null) {
+
+        if(Objects.requireNonNull(mAuth.getCurrentUser()).isEmailVerified() && refer_counterr.equals("1")&& !refered_by.equals(" "))
+
+        //if (referal != null && isFromRegister != null)
+            {
 
             if (counter < 1) {
 
@@ -191,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             User post = snapshot.getValue(User.class);
 
 
-                            if (post.getRefer_id().equals(referal)) {
+                            if (post.getRefer_id().equals(refered_by)) {
 
 
                                 Log.e("dimag khrab", "ho gya" + post.getRefer_id());
@@ -201,6 +331,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 if (counter < 1) {
 
                                     mref.child("Users").child(post.getId()).child("no_of_coins").setValue(String.valueOf(Integer.parseInt(post.getNo_of_coins()) + 5));
+                                    muser.child("Users").child(mAuth.getCurrentUser().getUid()).child("refer_counter").setValue("0");
+
 
 
                                     counter++;
@@ -224,51 +356,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+
         SharedPreferences prefs = getSharedPreferences("Refer_data",
                 0);
-        referId = prefs.getString("id",
+       String referId = prefs.getString("id",
                 "no");
 
 
-///// for showing coin to user
-        ActionBar mActionBar = getSupportActionBar();
-        mActionBar.setDisplayShowHomeEnabled(false);
-        mActionBar.setDisplayShowTitleEnabled(false);
-        LayoutInflater mInflater = LayoutInflater.from(this);
-
-        View mCustomView = mInflater.inflate(R.layout.custom_actionbar, null);
-        TextView mTitleTextView = (TextView) mCustomView.findViewById(R.id.title_text);
-
-
-        mRootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("no_of_coins").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                noOfCoins = snapshot.getValue().toString();
-
-                mTitleTextView.setText(noOfCoins);
-
-
-
-
-                mActionBar.setCustomView(mCustomView, new ActionBar.LayoutParams(
-                        ActionBar.LayoutParams.WRAP_CONTENT,
-                        ActionBar.LayoutParams.MATCH_PARENT,
-                        Gravity.RIGHT
-                ));
-                mActionBar.setDisplayShowCustomEnabled(true);
-
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-
-///// for showing coin to user till here
 
 
 //////////for share
@@ -290,7 +384,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 shareIntent.setType("text/plain");
                 shareIntent.putExtra(Intent.EXTRA_SUBJECT, "My application name");
 
-                String shareMessage = "\nMy Refer Id: " + referId + "\n\n";
+                String shareMessage = "\nMy Refer Id: " + referIdd + "\n\n";
                 shareMessage = shareMessage + "https://play.google.com/store/apps/details?id=com.techov8.engineerguys" + "\n\n";
                 shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
                 startActivity(Intent.createChooser(shareIntent, "choose one"));
@@ -346,7 +440,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.navigation_developer:
-                startActivity(new Intent(this, About_Us.class));
+                String url = "https://engineering-guyz.github.io/#about";
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
                 break;
             case R.id.navigation_rateUs:
 
@@ -371,10 +468,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.navigation_privacy:
                 // startActivity(new Intent(this, About_Us.class));
 
-                String url = "https://super-cadence.github.io/Cadence.github.io/#services";
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(url));
-                startActivity(i);
+                String urll = "https://engineering-guyz.github.io/#services";
+                Intent in = new Intent(Intent.ACTION_VIEW);
+                in.setData(Uri.parse(urll));
+                startActivity(in);
 
                 break;
 

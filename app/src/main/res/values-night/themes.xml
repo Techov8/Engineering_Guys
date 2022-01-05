@@ -14,7 +14,7 @@
         <!-- Customize your theme here. -->
     </style>
     <style name="SplashScreen" parent="Theme.MaterialComponents.Light.DarkActionBar">
-        <item name="android:windowBackground">@drawable/background_splashscreen</item>
+        <item name="android:windowBackground">@mipmap/ic_launcher_logo</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
