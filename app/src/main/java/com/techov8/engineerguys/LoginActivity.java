@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button registerUser;
     private TextView forgotPassword;
     private FirebaseAuth mAuth;
+    private ProgressBar progressBar;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +41,7 @@ public class LoginActivity extends AppCompatActivity {
         login = findViewById(R.id.login);
         forgotPassword = findViewById(R.id.forgetpassword);
         registerUser = findViewById(R.id.register_user);
+        progressBar = findViewById(R.id.progressBar3);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -114,6 +117,8 @@ public class LoginActivity extends AppCompatActivity {
                 String txt_email = email.getText().toString();
                 String txt_password = password.getText().toString();
 
+                progressBar.setVisibility(View.VISIBLE);
+
                 if (TextUtils.isEmpty(txt_email) || TextUtils.isEmpty(txt_password)) {
                     Toast.makeText(LoginActivity.this, "Empty Credentials!", Toast.LENGTH_SHORT).show();
                 } else {
@@ -137,6 +142,7 @@ public class LoginActivity extends AppCompatActivity {
                     //intent.putExtra("coin", "noOfCoins");
                     intent.putExtra("user", "username");
                     intent.putExtra("isFromRegister", "No");
+                    progressBar.setVisibility(View.GONE);
                     startActivity(intent);
                     finish();
                 }

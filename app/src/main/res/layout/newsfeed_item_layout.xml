@@ -28,7 +28,7 @@
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:layout_width="38dp"
                     android:layout_height="38dp"
-                    android:src="@drawable/chalogoc" />
+                    android:src="@drawable/ic_launcher_logo" />
 
 
                 <LinearLayout
