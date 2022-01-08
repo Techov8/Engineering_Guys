@@ -52,7 +52,7 @@
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
                     ads:adSize="MEDIUM_RECTANGLE"
-                    ads:adUnitId="ca-app-pub-3940256099942544/6300978111"/>
+                    ads:adUnitId="ca-app-pub-3197714952509994/9724388763" />
 
 
                 <TextView

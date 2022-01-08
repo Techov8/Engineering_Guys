@@ -46,15 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
 
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 
-            //  intent.putExtra("coin", "noOfCoins");
-            //  intent.putExtra("user", "username");
-            //intent.putExtra("isFromRegister", "No");
-            startActivity(intent);
-            finish();
-        }
 
         forgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,8 +126,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                   // Toast.makeText(LoginActivity.this, "Update the profile " +
-                          //  "for better expereince", Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(LoginActivity.this, "Update the profile " +
+                    //  "for better expereince", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 

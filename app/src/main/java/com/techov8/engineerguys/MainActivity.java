@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private int REQUEST_CODE = 11;
     private Dialog referDialog;
-    public static boolean isTestAd = true;
+    public static boolean isTestAd = false;
     private InterstitialAd mInterstitialAd;
     private String AD_UNIT_ID, coin, username;
 
