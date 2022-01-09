@@ -2,10 +2,8 @@ package com.techov8.engineerguys;
 
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -42,6 +40,7 @@ import com.google.android.gms.ads.initialization.OnInitializationCompleteListene
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
@@ -49,62 +48,52 @@ import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.play.core.tasks.OnSuccessListener;
 import com.google.android.play.core.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.techov8.engineerguys.ui.AskQuestion.HomeFragment;
-import com.techov8.engineerguys.ui.Profile.User;
 
 import java.util.Objects;
 
 import static com.google.android.play.core.install.model.AppUpdateType.FLEXIBLE;
-import static com.techov8.engineerguys.RegisterActivity.isfromRegister;
-import static com.techov8.engineerguys.RegisterActivity.referedId;
+
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private BottomNavigationView bottomNavigationView;
-    private NavController navController;
-
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle toggle;
-    private NavigationView navigationView;
 
 
     public static AlertDialog.Builder passwordResetDialog;
 
-    public static Boolean isVerified=false;
+    public static Boolean isVerified = false;
 
 
-    TextView fullname,email;
+    TextView fullname, email;
 
-    private int REQUEST_CODE = 11;
+    private final int REQUEST_CODE = 11;
     private Dialog referDialog;
     public static boolean isTestAd = false;
     private InterstitialAd mInterstitialAd;
-    private String AD_UNIT_ID, coin, username;
+    private String AD_UNIT_ID;
 
-    private String isFromRegister = "No";
-   // private String referId;
-    public  static String noOfCoins = "0";
-    public  static String refered_by = "0";
-    public  static String refer_counterr = "0";
-    public  static String referIdd ;
-
-
-    private DatabaseReference mref, mRootRef, muser;
+    // private String referId;
+    public static long noOfCoins;
+    public static String refered_by;
+    public static String referIdd;
+    public static boolean isTaskDone;
+    public static ActionBar mActionBar;
+    public static TextView mTitleTextView;
+    public static View mCustomView;
 
     private FirebaseAuth mAuth;
+    private FirebaseFirestore firebaseFirestore;
 
-
-    private int counter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,27 +101,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
 
-        mref = FirebaseDatabase.getInstance().getReference();
-        mRootRef = FirebaseDatabase.getInstance().getReference();
-        muser = FirebaseDatabase.getInstance().getReference();
+        firebaseFirestore = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
+        ///// for showing coin to user
+        mActionBar = getSupportActionBar();
+        mActionBar.setDisplayShowHomeEnabled(false);
+        mActionBar.setDisplayShowTitleEnabled(false);
+        LayoutInflater mInflater = LayoutInflater.from(this);
+
+        mCustomView = mInflater.inflate(R.layout.custom_actionbar, null);
+        mTitleTextView = mCustomView.findViewById(R.id.title_text);
 
 
+        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).get()
+                .addOnCompleteListener(task -> {
+
+                    noOfCoins = task.getResult().getLong("no_of_coins");
+                    refered_by = task.getResult().getString("referal");
+                    referIdd = task.getResult().getString("refer_id");
+                    isTaskDone = task.getResult().getBoolean("is_task_done");
+                    mTitleTextView.setText(String.valueOf(noOfCoins));
+                    changeCoin();
+                    transferCoin();
+                });
 
 
-
-
-        bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        navController = Navigation.findNavController(this, R.id.frame_layout);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        NavController navController = Navigation.findNavController(this, R.id.frame_layout);
 
         drawerLayout = findViewById(R.id.drawerLayout);
-        navigationView = findViewById(R.id.navigation_view);
-
+        NavigationView navigationView = findViewById(R.id.navigation_view);
 
         View header = navigationView.getHeaderView(0);
 
-        fullname=header.findViewById(R.id.headerName);
-        email=header.findViewById(R.id.headerEmail);
+        fullname = header.findViewById(R.id.headerName);
+        email = header.findViewById(R.id.headerEmail);
 
 
         FirebaseUser usero = FirebaseAuth.getInstance().getCurrentUser();
@@ -155,78 +158,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             AD_UNIT_ID = "ca-app-pub-3197714952509994/6590958965";
         }
 
-        loadAd();
+        if (HomeFragment.isAdActive) {
+            loadAd();
+        }
 //////////////////////////////////// IN APP UPDATE FEATURES
         AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(MainActivity.this);
 
         Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
-        appUpdateInfoTask.addOnSuccessListener(new OnSuccessListener<AppUpdateInfo>() {
-            @Override
-            public void onSuccess(AppUpdateInfo result) {
-                if (result.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE &&
-                        result.isUpdateTypeAllowed(FLEXIBLE)) {
-                    try {
-                        appUpdateManager.startUpdateFlowForResult(result, FLEXIBLE, MainActivity.this, REQUEST_CODE);
-                    } catch (IntentSender.SendIntentException e) {
-                        e.printStackTrace();
-                    }
+        appUpdateInfoTask.addOnSuccessListener(result -> {
+            if (result.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE &&
+                    result.isUpdateTypeAllowed(FLEXIBLE)) {
+                try {
+                    appUpdateManager.startUpdateFlowForResult(result, FLEXIBLE, MainActivity.this, REQUEST_CODE);
+                } catch (IntentSender.SendIntentException e) {
+                    e.printStackTrace();
                 }
             }
         });
 
         //////////////////////for cloud notification
         FirebaseMessaging.getInstance().subscribeToTopic("all")
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                .addOnCompleteListener(task -> {
 
-                    }
                 });
 
 /////////////////////////////////
 
-
-
-        ///// for showing coin to user
-        ActionBar mActionBar = getSupportActionBar();
-        mActionBar.setDisplayShowHomeEnabled(false);
-        mActionBar.setDisplayShowTitleEnabled(false);
-        LayoutInflater mInflater = LayoutInflater.from(this);
-
-        View mCustomView = mInflater.inflate(R.layout.custom_actionbar, null);
-        TextView mTitleTextView = (TextView) mCustomView.findViewById(R.id.title_text);
-
-
-        mRootRef.child("Users").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                for (DataSnapshot dataSnapshot: snapshot .getChildren()) {
-
-                    //noOfCoins = snapshot.getValue().toString();
-                    noOfCoins= snapshot.child("no_of_coins").getValue().toString();
-                    refered_by= snapshot.child("refer_by").getValue().toString();
-                    refer_counterr=snapshot.child("refer_counter").getValue().toString();
-                    referIdd=snapshot.child("refer_id").getValue().toString();
-
-                    mTitleTextView.setText(noOfCoins);
-
-
-                    mActionBar.setCustomView(mCustomView, new ActionBar.LayoutParams(
-                            ActionBar.LayoutParams.WRAP_CONTENT,
-                            ActionBar.LayoutParams.MATCH_PARENT,
-                            Gravity.RIGHT
-                    ));
-                    mActionBar.setDisplayShowCustomEnabled(true);
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
 
 
 ///// for showing coin to user till here
@@ -234,135 +191,52 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 ////////////////////////////////////////////////////////////////////////////////for email verification
 
-         passwordResetDialog = new AlertDialog.Builder(this);
+        passwordResetDialog = new AlertDialog.Builder(this);
         passwordResetDialog.setTitle("Email not verified");
         // passwordResetDialog.setMessage("Enter Your Email To Receive Reset link ");
         // passwordResetDialog.setView(resetMail);
 
 
-        passwordResetDialog.setPositiveButton("Verify now", new DialogInterface.OnClickListener() {
+        passwordResetDialog.setPositiveButton("Verify now", (dialog, which) -> mAuth.getCurrentUser().sendEmailVerification().addOnSuccessListener(new com.google.android.gms.tasks.OnSuccessListener<Void>() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onSuccess(@NonNull Void unused) {
 
-
-                mAuth.getCurrentUser().sendEmailVerification().addOnSuccessListener(new com.google.android.gms.tasks.OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(@NonNull Void unused) {
-
-                        Toast.makeText(MainActivity.this, "Verification link Sent To Your Mail", Toast.LENGTH_SHORT).show();
-                        FirebaseAuth.getInstance().signOut();
-                        startActivity(new Intent(MainActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
-                        finish();
-
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-
-                        Toast.makeText(MainActivity.this, "Verification link Not Sent To Your Mail", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
+                Toast.makeText(MainActivity.this, "Verification link Sent To Your Mail", Toast.LENGTH_SHORT).show();
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(MainActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                finish();
 
             }
-        });
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
 
+                Toast.makeText(MainActivity.this, "Verification link Not Sent To Your Mail", Toast.LENGTH_SHORT).show();
 
-
-
+            }
+        }));
 
         if (!mAuth.getCurrentUser().isEmailVerified()) {
 
 
+            passwordResetDialog.show();
+            passwordResetDialog.setCancelable(false);
+            isVerified = false;
 
 
-          /*  passwordResetDialog.setNegativeButton("Not now", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                }
-            });
-
-           */
-
-          passwordResetDialog.show();
-          passwordResetDialog.setCancelable(false);
-          isVerified=false;
-
-
-        }else {
-            Toast.makeText(this, "Verified", Toast.LENGTH_SHORT).show();
-
-            isVerified=true;
+        } else {
+            isVerified = true;
 
         }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////for adding coin to the rfrar
 
-        Intent intent = getIntent();
-
-       // String referal = intent.getStringExtra("referal");
-        //isFromRegister = intent.getStringExtra("isFromRegister");
 
 
-        if(Objects.requireNonNull(mAuth.getCurrentUser()).isEmailVerified() && refer_counterr.equals("1")&& !refered_by.equals(" "))
-
-        //if (referal != null && isFromRegister != null)
-            {
-
-            if (counter < 1) {
-
-                FirebaseDatabase.getInstance().getReference().child("Users").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            User post = snapshot.getValue(User.class);
-
-
-                            if (post.getRefer_id().equals(refered_by)) {
-
-
-                                Log.e("dimag khrab", "ho gya" + post.getRefer_id());
-                                Log.e("dimag khrab", "ho gya" + post.getId());
-                                Log.e("dimag khrab", "ho gya" + post.getNo_of_coins());
-
-                                if (counter < 1) {
-
-                                    mref.child("Users").child(post.getId()).child("no_of_coins").setValue(String.valueOf(Integer.parseInt(post.getNo_of_coins()) + 5));
-                                    muser.child("Users").child(mAuth.getCurrentUser().getUid()).child("refer_counter").setValue("0");
-
-
-
-                                    counter++;
-                                }
-
-                            }
-                        }
-
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-            }
-
-        }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-        SharedPreferences prefs = getSharedPreferences("Refer_data",
-                0);
-       String referId = prefs.getString("id",
-                "no");
-
-
 
 
 //////////for share
@@ -376,13 +250,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Button shareBtn = referDialog.findViewById(R.id.share_btn);
         TextView referText = referDialog.findViewById(R.id.refer_text);
 
-        referText.setText("Your Refer Id :- " + referId);
+        referText.setText("Your Refer Id :- " + referIdd);
         shareBtn.setOnClickListener(view -> {
             try {
                 referDialog.dismiss();
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
                 shareIntent.setType("text/plain");
-                shareIntent.putExtra(Intent.EXTRA_SUBJECT, "My application name");
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Download Engineering Guyz App");
 
                 String shareMessage = "\nMy Refer Id: " + referIdd + "\n\n";
                 shareMessage = shareMessage + "https://play.google.com/store/apps/details?id=com.techov8.engineerguys" + "\n\n";
@@ -555,4 +429,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    public static void changeCoin() {
+        mTitleTextView.setText(String.valueOf(noOfCoins));
+
+        mActionBar.setCustomView(mCustomView, new ActionBar.LayoutParams(
+                ActionBar.LayoutParams.WRAP_CONTENT,
+                ActionBar.LayoutParams.MATCH_PARENT,
+                Gravity.RIGHT
+        ));
+        mActionBar.setDisplayShowCustomEnabled(true);
+    }
+    private void transferCoin(){
+        if (mAuth.getCurrentUser().isEmailVerified() && !isTaskDone && !refered_by.equals(" ")) {
+            firebaseFirestore.collection("USERS").get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            if (documentSnapshot.getString("refer_id").equals(refered_by)) {
+                                long noOfCoins = documentSnapshot.getLong("no_of_coins");
+                                String id = documentSnapshot.getString("id");
+                                firebaseFirestore.collection("USERS").document(id).update("no_of_coins", noOfCoins + 5)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                                                firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).update("is_task_done", true);
+                                            }
+                                        });
+                            }
+                        }
+                    }).addOnFailureListener(e -> firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).update("is_task_done", true));
+        }
+    }
 }

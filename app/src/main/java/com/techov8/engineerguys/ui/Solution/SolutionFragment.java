@@ -11,13 +11,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-
-import com.denzcoskun.imageslider.constants.ScaleTypes;
-import com.denzcoskun.imageslider.interfaces.ItemClickListener;
-import com.denzcoskun.imageslider.models.SlideModel;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.techov8.engineerguys.R;
-import com.techov8.engineerguys.ui.AskQuestion.HomeFragment;
 
 import java.util.ArrayList;
 
@@ -51,22 +47,21 @@ public class SolutionFragment extends Fragment {
 
     private void readData() {
 
-        FirebaseFirestore.getInstance().collection("Newsfeed").document("RJJp67t64krBQ1HQMe1u")
-
-                .get()
+        FirebaseFirestore.getInstance().collection("Newsfeed").orderBy("server_time").get()
                 .addOnCompleteListener(task -> {
+
                     if (task.isSuccessful()) {
 
+                        for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
 
-                        long no_of_answer = task.getResult().getLong("no_of_answer");
-
-                        for (long y = 1; y < no_of_answer + 1; y++) {
-
-                            list.add(new SolutionData(task.getResult().getString("question_details_" + y),
-                                    task.getResult().getString("answer_image_" + y),
-                                    task.getResult().getString("answer_time_" + y),
-                                    task.getResult().getString("answer_text_" + y),
-                                    task.getResult().getId()));
+                            list.add( new SolutionData(
+                                    documentSnapshot.getString("question_details"),
+                                    documentSnapshot.getString("answer_image"),
+                                    documentSnapshot.getString("answer_time"),
+                                    documentSnapshot.getString("answer_text"),
+                                    documentSnapshot.getId(),
+                                    documentSnapshot.getString("company_image"),
+                                    documentSnapshot.getString("company_name")));
 
                         }
 
@@ -93,6 +88,6 @@ public class SolutionFragment extends Fragment {
 
 
                 });
-    }
 
+    }
 }

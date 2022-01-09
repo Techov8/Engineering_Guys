@@ -6,10 +6,10 @@
 
 
     <item android:id="@+id/navigation_rateUs"
-        android:title="Rate us &amp; earn "
+        android:title="Rate us"
         android:icon="@drawable/ic_baseline_star_rate_24"/>
     <item android:id="@+id/navigation_share"
-        android:title="Refer &amp; earn"
+        android:title="Refer (Earn Coin)"
         android:icon="@drawable/share"/>
 
     <item android:id="@+id/navigation_privacy"

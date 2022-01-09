@@ -2,7 +2,8 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,6 +27,7 @@
                 android:orientation="horizontal">
 
                 <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/company_image"
                     android:layout_width="38dp"
                     android:layout_height="38dp"
                     android:src="@drawable/ic_launcher_logo" />
@@ -38,6 +40,7 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/company_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Engineer Guys"
@@ -108,10 +111,10 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:textStyle="bold"
                     android:text="Click here to view full solution."
                     android:textColor="@color/teal_200"
-                    android:textSize="20sp" />
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="match_parent"

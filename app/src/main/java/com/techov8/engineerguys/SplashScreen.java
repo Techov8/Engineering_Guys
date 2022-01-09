@@ -17,10 +17,6 @@ public class SplashScreen extends AppCompatActivity {
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             Intent intent = new Intent(SplashScreen.this, MainActivity.class);
-
-            //  intent.putExtra("coin", "noOfCoins");
-            //  intent.putExtra("user", "username");
-            //intent.putExtra("isFromRegister", "No");
             startActivity(intent);
             finish();
         }else {

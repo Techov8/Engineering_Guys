@@ -1,9 +1,8 @@
 <component name="libraryTable">
   <library name="Gradle: com.google.android.gms:play-services-mlkit-text-recognition-common:16.1.0@aar">
     <CLASSES>
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/b634c4b65dbbf8bf0199c00db80eed76/play-services-mlkit-text-recognition-common-16.1.0/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/24947edced0ca904491b5709f37dc7d0/jetified-play-services-mlkit-text-recognition-common-16.1.0/res" />
       <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/b634c4b65dbbf8bf0199c00db80eed76/play-services-mlkit-text-recognition-common-16.1.0/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/b634c4b65dbbf8bf0199c00db80eed76/play-services-mlkit-text-recognition-common-16.1.0/res" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/b634c4b65dbbf8bf0199c00db80eed76/play-services-mlkit-text-recognition-common-16.1.0/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC>

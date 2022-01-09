@@ -23,9 +23,12 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 import com.techov8.engineerguys.FullImageView;
 import com.techov8.engineerguys.FullSolutionActivity;
@@ -36,6 +39,7 @@ import com.techov8.engineerguys.ui.AskQuestion.HomeFragment;
 
 import java.util.ArrayList;
 
+import static com.techov8.engineerguys.MainActivity.changeCoin;
 import static com.techov8.engineerguys.MainActivity.isVerified;
 import static com.techov8.engineerguys.MainActivity.noOfCoins;
 import static com.techov8.engineerguys.MainActivity.passwordResetDialog;
@@ -64,6 +68,7 @@ public class SolutionAdapter extends RecyclerView.Adapter<SolutionAdapter.Notice
         holder.deleteNoticeTitle.setText(currentItem.getTitle());
         holder.date.setText(currentItem.getData());
         holder.solutiontxt.setText(currentItem.getTime());
+        holder.companyName.setText(currentItem.getCompanyName());
 
         try {
             if (currentItem.getImage() != null)
@@ -71,9 +76,14 @@ public class SolutionAdapter extends RecyclerView.Adapter<SolutionAdapter.Notice
         } catch (Exception e) {
             e.printStackTrace();
         }
+        try {
+            if (currentItem.getCompanyImage() != null)
+                Picasso.get().load(currentItem.getCompanyImage()).into(holder.companyImage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-
-        DatabaseReference mRootRef = FirebaseDatabase.getInstance().getReference();
+        FirebaseFirestore firebaseFirestore=FirebaseFirestore.getInstance();
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
@@ -82,17 +92,21 @@ public class SolutionAdapter extends RecyclerView.Adapter<SolutionAdapter.Notice
             public void onClick(View v) {
 
 
-                if (Integer.parseInt(noOfCoins) >= 5) {
+                if (noOfCoins >= 5) {
 
                     if (isVerified) {
+                        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).update("no_of_coins", noOfCoins-5)
+                                .addOnCompleteListener(task -> {
+                                    noOfCoins=noOfCoins-5;
+                                    changeCoin();
+                                    Toast.makeText(holder.itemView.getContext(), 5 + " coins redeemed!", Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(context, FullSolutionActivity.class);
+                                    intent.putExtra("image", currentItem.getImage());
+                                    intent.putExtra("question", currentItem.getTitle());
+                                    intent.putExtra("solution", currentItem.getTime());
+                                    context.startActivity(intent);
+                                });
 
-                        // Log.e("hnnnnn", "yyyyy" + noOfCoins);
-                        Intent intent = new Intent(context, FullSolutionActivity.class);
-                        intent.putExtra("image", currentItem.getImage());
-                        intent.putExtra("question", currentItem.getTitle());
-                        intent.putExtra("solution", currentItem.getTime());
-                        mRootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("no_of_coins").setValue(Integer.parseInt(noOfCoins) - 5);
-                        context.startActivity(intent);
 
                     } else {
                         passwordResetDialog.show();
@@ -116,8 +130,8 @@ public class SolutionAdapter extends RecyclerView.Adapter<SolutionAdapter.Notice
 
     public class NoticeViewAdapter extends RecyclerView.ViewHolder {
 
-        private TextView deleteNoticeTitle, date, solutiontxt;
-        private ImageView deleteNoticeImage;
+        private TextView deleteNoticeTitle, date, solutiontxt,companyName;
+        private ImageView deleteNoticeImage,companyImage;
         private final TemplateView nativeTemplateView;
         private String NATIVE_AD_ID;
         private LinearLayout fullsolution;
@@ -131,6 +145,8 @@ public class SolutionAdapter extends RecyclerView.Adapter<SolutionAdapter.Notice
             fullsolution = itemView.findViewById(R.id.viewolutiontxt);
             solutiontxt = itemView.findViewById(R.id.Solutiontxt);
             nativeTemplateView = itemView.findViewById(R.id.nativeTemplateView);
+            companyImage=itemView.findViewById(R.id.company_image);
+            companyName=itemView.findViewById(R.id.company_name);
 
             if (MainActivity.isTestAd) {
                 NATIVE_AD_ID = "ca-app-pub-3940256099942544/2247696110";

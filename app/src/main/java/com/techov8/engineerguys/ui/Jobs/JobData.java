@@ -1,14 +1,10 @@
 package com.techov8.engineerguys.ui.Jobs;
 
 public class JobData {
-    private String jobtitle, salary,post,image,additionalinfo,key,link;
-
-    public JobData(){
-
-    }
+    private String jobtitle, salary,post,image,additionalinfo,key,link,lastDate;
 
 
-    public JobData(String jobtitle, String salary, String post, String image, String additionalinfo, String key, String link) {
+    public JobData(String jobtitle, String salary, String post, String image, String additionalinfo, String key, String link,String lastDate) {
         this.jobtitle = jobtitle;
         this.salary = salary;
         this.post = post;
@@ -16,6 +12,11 @@ public class JobData {
         this.additionalinfo = additionalinfo;
         this.key = key;
         this.link = link;
+        this.lastDate=lastDate;
+    }
+
+    public String getLastDate() {
+        return lastDate;
     }
 
     public String getLink() {

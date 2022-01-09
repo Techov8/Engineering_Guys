@@ -55,6 +55,7 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.TeacherViewAdapt
         holder.email.setText(item.getSalary());
         holder.post.setText(item.getPost());
         holder.additionalinfo.setText(item.getAdditionalinfo());
+        holder.lastDate.setText(item.getLastDate());
 
         holder.applybutton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,7 +103,7 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.TeacherViewAdapt
 
     public class TeacherViewAdapter extends RecyclerView.ViewHolder {
 
-        private TextView Jobname, email, post, additionalinfo;
+        private TextView Jobname, email, post, additionalinfo,lastDate;
         private ImageView imageView;
         private Button applybutton;
         private final TemplateView nativeTemplateView;
@@ -118,6 +119,7 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.TeacherViewAdapt
             imageView = itemView.findViewById(R.id.teacherImage);
             applybutton = itemView.findViewById(R.id.Applybutton);
             additionalinfo = itemView.findViewById(R.id.additionalinfo);
+            lastDate=itemView.findViewById(R.id.apply_till);
 
             nativeTemplateView = itemView.findViewById(R.id.job_nativeTemplateView);
 

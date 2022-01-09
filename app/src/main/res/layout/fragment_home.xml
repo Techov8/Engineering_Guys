@@ -37,8 +37,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="200dp"
                     app:iss_auto_cycle="true"
-                    app:iss_delay="0"
-                    app:iss_period="1000"
+                    app:iss_delay="1"
+                    app:iss_period="3000"
                     android:layout_marginBottom="8dp"/>
 
 
@@ -62,7 +62,6 @@
                     android:layout_gravity="center"
                     android:layout_marginTop="8dp"
                     android:layout_weight="1"
-                    android:gravity="center"
                     android:padding="3dp"
                     android:text="Ask your question by clicking button below &amp; get notified when answered."
                     android:textColor="#000000"
@@ -86,14 +85,21 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
 
+                <LinearLayout
+                    android:id="@+id/watch_ad_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_margin="8dp">
+
+
                 <TextView
                     android:id="@+id/textView51"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:layout_marginTop="8dp"
                     android:layout_weight="1"
-                    android:gravity="center"
                     android:padding="3dp"
                     android:text="Don't have enough Coin?"
                     android:textColor="#000000"
@@ -106,7 +112,6 @@
                     android:layout_gravity="center"
                     android:layout_marginTop="5dp"
                     android:layout_weight="1"
-                    android:gravity="center"
                     android:padding="3dp"
                     android:text="Watch upto 2 video ads per day &amp; earn coins ."
                     android:textColor="#000000"
@@ -124,6 +129,7 @@
                     android:paddingEnd="20dp"
                     android:text="Watch"
                     android:textSize="16sp" />
+                </LinearLayout>
 
 
             </LinearLayout>

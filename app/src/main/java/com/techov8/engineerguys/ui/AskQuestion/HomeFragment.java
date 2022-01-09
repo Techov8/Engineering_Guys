@@ -2,9 +2,7 @@ package com.techov8.engineerguys.ui.AskQuestion;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,10 +10,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.denzcoskun.imageslider.ImageSlider;
@@ -35,27 +33,22 @@ import com.google.android.gms.ads.initialization.OnInitializationCompleteListene
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.techov8.engineerguys.LoginActivity;
 import com.techov8.engineerguys.MainActivity;
 import com.techov8.engineerguys.R;
 import com.techov8.engineerguys.ui.Solution.SolutionData;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.zip.GZIPOutputStream;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
+import static com.techov8.engineerguys.MainActivity.changeCoin;
 import static com.techov8.engineerguys.MainActivity.isVerified;
 import static com.techov8.engineerguys.MainActivity.noOfCoins;
 import static com.techov8.engineerguys.MainActivity.passwordResetDialog;
-import static com.techov8.engineerguys.RegisterActivity.referedId;
 
 
 public class HomeFragment extends Fragment {
@@ -63,12 +56,11 @@ public class HomeFragment extends Fragment {
     private ClipboardManager myClipboard;
     private ClipData myClip;
 
-    private DatabaseReference mref;
-    private FirebaseAuth mAuth;
+
 
     private AdView mAdView;
     private RewardedAd rewardedAdMain;
-    private static String VIDEO_AD_UNIT_ID, BANNER_AD_UNIT;
+    private static String VIDEO_AD_UNIT_ID;
     boolean isLoading;
     private FirebaseFirestore firebaseFirestore;
     ImageSlider imageSlider;
@@ -88,68 +80,15 @@ public class HomeFragment extends Fragment {
         sendquestion = view.findViewById(R.id.sendbtn);
         earnbtn = view.findViewById(R.id.earnbtn);
 
-        mref = FirebaseDatabase.getInstance().getReference();
-        mAuth = FirebaseAuth.getInstance();
+        LinearLayout linearLayout=view.findViewById(R.id.watch_ad_container);
+        if(isAdActive){
+            linearLayout.setVisibility(View.VISIBLE);
+        }else{
+            linearLayout.setVisibility(View.GONE);
+        }
 
         myClipboard = (ClipboardManager) getContext().getSystemService(CLIPBOARD_SERVICE);
-
-        SharedPreferences prefs = getContext().getSharedPreferences("Refer_data",
-                0);
-        String referId = prefs.getString("id",
-                "no");
-
-        /////
-////////////////////////////////////////////////////////////////////////////////for email verification
-
-
-/*
-        if (!Objects.requireNonNull(mAuth.getCurrentUser()).isEmailVerified()) {
-
-
-            AlertDialog.Builder passwordResetDialog = new AlertDialog.Builder(getContext());
-            passwordResetDialog.setTitle("Email not verified");
-           // passwordResetDialog.setMessage("Enter Your Email To Receive Reset link ");
-           // passwordResetDialog.setView(resetMail);
-
-
-            passwordResetDialog.setPositiveButton("Verify now", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-
-                    mAuth.getCurrentUser().sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Toast.makeText(getContext(), "Verification link Sent To Your Mail", Toast.LENGTH_SHORT).show();
-
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-
-                            Toast.makeText(getContext(), "Error! verification link not sent" + e.getMessage(), Toast.LENGTH_SHORT).show();
-
-                        }
-                    });
-
-                }
-            });
-
-          /*  passwordResetDialog.setNegativeButton("Not now", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                }
-            });
-
-           */
-
-         //   passwordResetDialog.show();
-       //     passwordResetDialog.setCancelable(false);
-
-      //  }
-
-
+        firebaseFirestore=FirebaseFirestore.getInstance();
 
         sendquestion.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,7 +105,7 @@ public class HomeFragment extends Fragment {
                     // intent.setType("plain/text");
                     // intent.setDataAndType(Uri.parse("mailto:"), "plain/text");
                     intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"engineeringguyzinfo@gmail.com"});
-                    intent.putExtra(Intent.EXTRA_SUBJECT, "Question by " + referId);
+                    intent.putExtra(Intent.EXTRA_SUBJECT, "Question by " + MainActivity.referIdd);
                     intent.putExtra(Intent.EXTRA_TEXT, "Write your question or attach photo");
                     if (intent.resolveActivity(requireContext().getPackageManager()) != null) {
                         startActivity(intent);
@@ -216,8 +155,6 @@ public class HomeFragment extends Fragment {
 
 ///////////////////////////////////////////////////////////////////////////Banner slider
 
-
-        firebaseFirestore = FirebaseFirestore.getInstance();
         imageSlider = view.findViewById(R.id.image_slider);
 
         imageSliderList = new ArrayList<>();
@@ -314,7 +251,7 @@ public class HomeFragment extends Fragment {
 
     private void readData() {
         ///////
-        firebaseFirestore.collection("Newsfeed").document("RJJp67t64krBQ1HQMe1u")
+        firebaseFirestore.collection("HOME").document("Basic Data")
 
                 .get()
                 .addOnCompleteListener(task -> {
@@ -434,10 +371,11 @@ public class HomeFragment extends Fragment {
                         String rewardType = rewardItem.getType();
 
 
-                        mref.child("Users").child(mAuth.getCurrentUser().getUid()).child("no_of_coins").setValue(String.valueOf(rewardAmount + Integer.parseInt(noOfCoins)));
+                        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).update("no_of_coins",noOfCoins+rewardAmount);
+                        noOfCoins=noOfCoins+rewardAmount;
+                        changeCoin();
 
-
-                        Toast.makeText(getContext(), rewardAmount + " coin added", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), rewardAmount + " coins added!", Toast.LENGTH_SHORT).show();
                         // Supriyo do coin work
                     }
                 });

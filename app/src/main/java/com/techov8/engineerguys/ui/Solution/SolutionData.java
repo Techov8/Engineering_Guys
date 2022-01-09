@@ -1,18 +1,17 @@
 package com.techov8.engineerguys.ui.Solution;
 
 public class SolutionData {
-    String title, image, data, time, key;
+    String title, image, data, time, key,companyImage,companyName;
 
-    public SolutionData(){
 
-    }
-
-    public SolutionData(String title, String image, String data, String time, String key) {
+    public SolutionData(String title, String image, String data, String time, String key,String companyImage,String companyName) {
         this.title = title;
         this.image = image;
         this.data = data;
         this.time = time;
         this.key = key;
+        this.companyImage=companyImage;
+        this.companyName=companyName;
     }
 
     public String getTitle() {
@@ -51,7 +50,11 @@ public class SolutionData {
         return key;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public String getCompanyImage() {
+        return companyImage;
+    }
+
+    public String getCompanyName() {
+        return companyName;
     }
 }
