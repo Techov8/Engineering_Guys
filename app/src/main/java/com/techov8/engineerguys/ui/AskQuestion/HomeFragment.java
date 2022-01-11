@@ -18,19 +18,13 @@ import androidx.fragment.app.Fragment;
 
 import com.denzcoskun.imageslider.ImageSlider;
 import com.denzcoskun.imageslider.constants.ScaleTypes;
-import com.denzcoskun.imageslider.interfaces.ItemClickListener;
 import com.denzcoskun.imageslider.models.SlideModel;
-import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.OnUserEarnedRewardListener;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
-import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.material.snackbar.Snackbar;
@@ -43,7 +37,6 @@ import com.techov8.engineerguys.ui.Solution.SolutionData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.zip.GZIPOutputStream;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static com.techov8.engineerguys.MainActivity.changeCoin;
@@ -58,8 +51,6 @@ public class HomeFragment extends Fragment {
     private ClipData myClip;
 
 
-
-    private AdView mAdView;
     private RewardedAd rewardedAdMain;
     private static String VIDEO_AD_UNIT_ID;
     boolean isLoading;
@@ -67,9 +58,7 @@ public class HomeFragment extends Fragment {
     ImageSlider imageSlider;
     public static boolean isAdActive, isRatingCoin;
     public static ArrayList<SolutionData> list = new ArrayList<>();
-    private AdRequest adRequest;
     private List<SlideModel> imageSliderList;
-    private Button sendquestion, earnbtn;
 
 
     @Override
@@ -78,8 +67,8 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        sendquestion = view.findViewById(R.id.sendbtn);
-        earnbtn = view.findViewById(R.id.earnbtn);
+        Button sendquestion = view.findViewById(R.id.sendbtn);
+        Button earnbtn = view.findViewById(R.id.earnbtn);
 
         LinearLayout linearLayout=view.findViewById(R.id.watch_ad_container);
         if(isAdActive){
@@ -91,65 +80,56 @@ public class HomeFragment extends Fragment {
         myClipboard = (ClipboardManager) requireContext().getSystemService(CLIPBOARD_SERVICE);
         firebaseFirestore=FirebaseFirestore.getInstance();
 
-        sendquestion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        sendquestion.setOnClickListener(v -> {
+            Snackbar snackbar = Snackbar.make(view.findViewById(R.id.layout), "Please mail us your question on engineeringguyzinfo@gmail.com from your registered mail", Snackbar.LENGTH_LONG);
 
 
-                try {
+            try {
 
 
-                    //Toast.makeText(getContext(),"clicked",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(),"clicked",Toast.LENGTH_SHORT).show();
 
-                    Intent intent = new Intent(Intent.ACTION_SENDTO);
-                    intent.setData(Uri.parse("mailto:")); // only email apps should handle this
-                    // intent.setType("plain/text");
-                    // intent.setDataAndType(Uri.parse("mailto:"), "plain/text");
-                    intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"engineeringguyzinfo@gmail.com"});
-                    intent.putExtra(Intent.EXTRA_SUBJECT, "Question by " + MainActivity.referIdd);
-                    intent.putExtra(Intent.EXTRA_TEXT, "Write your question or attach photo");
-                    if (intent.resolveActivity(requireContext().getPackageManager()) != null) {
-                        startActivity(intent);
+                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+                // intent.setType("plain/text");
+                // intent.setDataAndType(Uri.parse("mailto:"), "plain/text");
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"engineeringguyzinfo@gmail.com"});
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Question by " + MainActivity.referIdd);
+                intent.putExtra(Intent.EXTRA_TEXT, "Write your question or attach photo");
 
-
-                    } else {
-                        Snackbar snackbar = Snackbar.make(view.findViewById(R.id.layout), "Please mail us your question on engineeringguyzinfo@gmail.com from your registered mail", Snackbar.LENGTH_LONG);
-                        snackbar.setAction("Copy mail ", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-
-                                //String text = textView.getText().toString();
-                                myClip = ClipData.newPlainText("text", "engineeringguyzinfo@gmail.com");
-                                myClipboard.setPrimaryClip(myClip);
-                                Toast.makeText(getContext(), "Mail Copied",
-                                        Toast.LENGTH_SHORT).show();
-
-                            }
-                        });
-                        snackbar.show();
-                    }
+                if (intent.resolveActivity(requireContext().getPackageManager()) != null) {
+                    startActivity(intent);
 
 
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } else {
+                    snackbar.setAction("Copy mail ", v12 -> {
 
-                    Snackbar snackbarr = Snackbar.make(view.findViewById(R.id.layout), "Please mail us your question on engineeringguyzinfo@gmail.com from your registered mail", Snackbar.LENGTH_LONG);
-                    snackbarr.setAction("Copy mail ", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
+                        //String text = textView.getText().toString();
+                        myClip = ClipData.newPlainText("text", "engineeringguyzinfo@gmail.com");
+                        myClipboard.setPrimaryClip(myClip);
+                        Toast.makeText(getContext(), "Mail Copied",
+                                Toast.LENGTH_SHORT).show();
 
-                            //String text = textView.getText().toString();
-                            myClip = ClipData.newPlainText("text", "engineeringguyzinfo@gmail.com");
-                            myClipboard.setPrimaryClip(myClip);
-                            Toast.makeText(getContext(), "Mail Copied",
-                                    Toast.LENGTH_SHORT).show();
-
-                        }
                     });
-                    snackbarr.show();
+                    snackbar.show();
                 }
 
+
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                snackbar.setAction("Copy mail ", v1 -> {
+
+                    //String text = textView.getText().toString();
+                    myClip = ClipData.newPlainText("text", "engineeringguyzinfo@gmail.com");
+                    myClipboard.setPrimaryClip(myClip);
+                    Toast.makeText(getContext(), "Mail Copied",
+                            Toast.LENGTH_SHORT).show();
+
+                });
+                snackbar.show();
             }
+
         });
         //////
 
@@ -175,34 +155,26 @@ public class HomeFragment extends Fragment {
 
         if (MainActivity.isTestAd) {
             VIDEO_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917";
-            // BANNER_AD_UNIT = "ca-app-pub-3940256099942544/6300978111";
         } else {
             VIDEO_AD_UNIT_ID = "ca-app-pub-3197714952509994/6884981747";
-            //BANNER_AD_UNIT = "ca-app-pub-3197714952509994/9724388763";
         }
 
 
-        earnbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        earnbtn.setOnClickListener(v -> {
 
-                if (isVerified) {
-                    showRewardedVideo();
-                }else{
-                    passwordResetDialog.show();
-                    passwordResetDialog.setCancelable(false);
-                }
+            if (isVerified) {
+                showRewardedVideo();
+            }else{
+                passwordResetDialog.show();
+                passwordResetDialog.setCancelable(false);
             }
         });
 
         /////ads
-        mAdView = view.findViewById(R.id.adView);
-        MobileAds.initialize(getContext(), new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-            }
+        AdView mAdView = view.findViewById(R.id.adView);
+        MobileAds.initialize(getContext(), initializationStatus -> {
         });
-        adRequest = new AdRequest.Builder().build();
+        AdRequest adRequest = new AdRequest.Builder().build();
 
         if (isAdActive) {
             mAdView.loadAd(adRequest);
@@ -219,12 +191,6 @@ public class HomeFragment extends Fragment {
                 // Code to be executed when an ad finishes loading.
             }
 
-            @Override
-            public void onAdFailedToLoad(LoadAdError adError) {
-
-                mAdView.loadAd(adRequest);
-                // Code to be executed when an ad request fails.
-            }
 
             @Override
             public void onAdOpened() {
@@ -272,20 +238,17 @@ public class HomeFragment extends Fragment {
                             imageSlider.setImageList(imageSliderList, ScaleTypes.FIT);
 
 
-                            imageSlider.setItemClickListener(new ItemClickListener() {
-                                @Override
-                                public void onItemSelected(int i) {
+                            imageSlider.setItemClickListener(i -> {
 
-                                   //Log.e("urllll", "ye hai  " + imageSliderList.get(i).getTitle().toString());
+                               //Log.e("urllll", "ye hai  " + imageSliderList.get(i).getTitle().toString());
 
-                                  //  String n = imageSliderList.get(i).getImageUrl().toString();
-                                    //task.getResult().getString("bannerpromo_"+ x +"_link").toString();
-                                    String k = task.getResult().getString("bannerpromo_" + i + "_link").toString();
-                                    Intent in = new Intent(Intent.ACTION_VIEW);
-                                    in.setData(Uri.parse(k));
-                                    startActivity(in);
+                              //  String n = imageSliderList.get(i).getImageUrl().toString();
+                                //task.getResult().getString("bannerpromo_"+ x +"_link").toString();
+                                String k = task.getResult().getString("bannerpromo_" + i + "_link");
+                                Intent in = new Intent(Intent.ACTION_VIEW);
+                                in.setData(Uri.parse(k));
+                                startActivity(in);
 
-                                }
                             });
 
                         }
@@ -338,15 +301,6 @@ public class HomeFragment extends Fragment {
                         Log.d("TAG", "onAdShowedFullScreenContent");
                     }
 
-                    @Override
-                    public void onAdFailedToShowFullScreenContent(AdError adError) {
-                        // Called when ad fails to show.
-                        Log.d("HomeFragment", "onAdFailedToShowFullScreenContent");
-                        // Don't forget to set the ad reference to null so you
-                        // don't show the ad a second time.
-                        rewardedAdMain = null;
-
-                    }
 
                     @Override
                     public void onAdDismissedFullScreenContent() {
@@ -362,22 +316,19 @@ public class HomeFragment extends Fragment {
                 });
         rewardedAdMain.show(
                 requireActivity(),
-                new OnUserEarnedRewardListener() {
-                    @Override
-                    public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
-                        // Handle the reward.
-                        Log.d("TAG", "The user earned the reward.");
-                        int rewardAmount = rewardItem.getAmount();
-                        String rewardType = rewardItem.getType();
+                rewardItem -> {
+                    // Handle the reward.
+                    Log.d("TAG", "The user earned the reward.");
+                    int rewardAmount = rewardItem.getAmount();
+//                        String rewardType = rewardItem.getType();
 
 
-                        firebaseFirestore.collection("USERS").document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).update("no_of_coins",noOfCoins+rewardAmount);
-                        noOfCoins=noOfCoins+rewardAmount;
-                        changeCoin();
+                    firebaseFirestore.collection("USERS").document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).update("no_of_coins",noOfCoins+rewardAmount);
+                    noOfCoins=noOfCoins+rewardAmount;
+                    changeCoin();
 
-                        Toast.makeText(getContext(), rewardAmount + " coins added!", Toast.LENGTH_SHORT).show();
-                        // Supriyo do coin work
-                    }
+                    Toast.makeText(getContext(), rewardAmount + " coins added!", Toast.LENGTH_SHORT).show();
+                    // Supriyo do coin work
                 });
     }
 

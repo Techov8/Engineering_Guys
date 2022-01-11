@@ -99,8 +99,8 @@ public class RegisterActivity extends AppCompatActivity {
 
 
             String id = UUID.randomUUID().toString().substring(0, 3);
-            int index=name2.indexOf(" ");
-            String dd=name2.substring(0,index);
+//            int index=name2.indexOf(" ");
+//            String dd=name2.substring(0,index);
             String[] d = name2.split(" ", 2);
             String referId = d[0].toLowerCase() + "_" + id;
 

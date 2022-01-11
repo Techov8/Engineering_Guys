@@ -29,32 +29,23 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
-
-import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
 import com.google.android.play.core.install.model.UpdateAvailability;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.play.core.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.techov8.engineerguys.ui.AskQuestion.HomeFragment;
 
@@ -109,11 +100,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mActionBar.setDisplayShowTitleEnabled(false);
         LayoutInflater mInflater = LayoutInflater.from(MainActivity.this);
 
-        mCustomView = mInflater.inflate(R.layout.custom_actionbar, null);
+        mCustomView = mInflater.inflate(R.layout.custom_actionbar,null);
         mTitleTextView = mCustomView.findViewById(R.id.title_text);
 
 
-        firebaseFirestore.collection("USERS").document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).get()
+        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).get()
                 .addOnCompleteListener(task -> {
 
                     noOfCoins = task.getResult().getLong("no_of_coins");
@@ -197,24 +188,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // passwordResetDialog.setView(resetMail);
 
 
-        passwordResetDialog.setPositiveButton("Verify now", (dialog, which) -> Objects.requireNonNull(mAuth.getCurrentUser()).sendEmailVerification().addOnSuccessListener(new com.google.android.gms.tasks.OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(@NonNull Void unused) {
+        passwordResetDialog.setPositiveButton("Verify now", (dialog, which) -> Objects.requireNonNull(mAuth.getCurrentUser()).sendEmailVerification().addOnSuccessListener(unused -> {
 
-                Toast.makeText(MainActivity.this, "Verification link Sent To Your Mail", Toast.LENGTH_SHORT).show();
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(MainActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
-                finish();
+            Toast.makeText(MainActivity.this, "Verification link Sent To Your Mail", Toast.LENGTH_SHORT).show();
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(MainActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            finish();
 
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-
-                Toast.makeText(MainActivity.this, "Verification link Not Sent To Your Mail", Toast.LENGTH_SHORT).show();
-
-            }
-        }));
+        }).addOnFailureListener(e -> Toast.makeText(MainActivity.this, "Verification link Not Sent To Your Mail", Toast.LENGTH_SHORT).show()));
 
         if (!Objects.requireNonNull(mAuth.getCurrentUser()).isEmailVerified()) {
 
@@ -250,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Button shareBtn = referDialog.findViewById(R.id.share_btn);
         TextView referText = referDialog.findViewById(R.id.refer_text);
 
-        referText.setText("Your Refer Id :- " + referIdd);
+        referText.setText(String.format("Your Refer Id :- %s", referIdd));
         shareBtn.setOnClickListener(view -> {
             try {
                 referDialog.dismiss();
@@ -272,10 +253,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     public void loadAd() {
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-            }
+        MobileAds.initialize(this, initializationStatus -> {
         });
         AdRequest adRequest = new AdRequest.Builder().build();
 
@@ -383,13 +361,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     loadAd();
 
                 }
-
-                @Override
-                public void onAdFailedToShowFullScreenContent(AdError adError) {
-                    // Called when fullscreen content failed to show.
-                    Log.d("TAG", "The ad failed to show.");
-                    loadAd();
-                }
+//
+//                @Override
+//                public void onAdFailedToShowFullScreenContent(AdError adError) {
+//                    // Called when fullscreen content failed to show.
+//                    Log.d("TAG", "The ad failed to show.");
+//                    loadAd();
+//                }
 
                 @Override
                 public void onAdShowedFullScreenContent() {
@@ -435,7 +413,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mActionBar.setCustomView(mCustomView, new ActionBar.LayoutParams(
                 ActionBar.LayoutParams.WRAP_CONTENT,
                 ActionBar.LayoutParams.MATCH_PARENT,
-                Gravity.RIGHT
+                Gravity.END
         ));
         mActionBar.setDisplayShowCustomEnabled(true);
     }
@@ -448,12 +426,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 long noOfCoins = documentSnapshot.getLong("no_of_coins");
                                 String id = documentSnapshot.getString("id");
                                 firebaseFirestore.collection("USERS").document(id).update("no_of_coins", noOfCoins + 5)
-                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
-                                                firebaseFirestore.collection("USERS").document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).update("is_task_done", true);
-                                            }
-                                        });
+                                        .addOnCompleteListener(task -> firebaseFirestore.collection("USERS").document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).update("is_task_done", true));
                             }
                         }
                     }).addOnFailureListener(e -> firebaseFirestore.collection("USERS").document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).update("is_task_done", true));
