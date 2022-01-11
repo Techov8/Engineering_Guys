@@ -82,6 +82,11 @@ public class FullSolutionActivity extends AppCompatActivity {
         String img = intent.getStringExtra("image");
         String ques = intent.getStringExtra("question");
         String sol = intent.getStringExtra("solution");
+
+        if (img.isEmpty())
+        {
+            image.setVisibility(View.GONE);
+        }
         solution.setText(sol);
         question.setText(ques);
         try {

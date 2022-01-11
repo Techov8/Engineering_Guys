@@ -13,10 +13,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.techov8.engineerguys.R;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 public class SolutionFragment extends Fragment {
@@ -34,7 +36,7 @@ public class SolutionFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-       getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+       requireActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         View view = inflater.inflate(R.layout.fragment_notice, container, false);
         deleteNoticeRecycler = view.findViewById(R.id.deleteNoticeRecycler);
@@ -51,7 +53,7 @@ public class SolutionFragment extends Fragment {
 
     private void readData() {
 
-        FirebaseFirestore.getInstance().collection("Newsfeed").orderBy("server_time").get()
+        FirebaseFirestore.getInstance().collection("Newsfeed").orderBy("server_time", Query.Direction.DESCENDING).get()
                 .addOnCompleteListener(task -> {
 
                     if (task.isSuccessful()) {

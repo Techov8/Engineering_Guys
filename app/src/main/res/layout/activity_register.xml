@@ -93,14 +93,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
 
-            android:hint="Password"
-            android:padding="10dp" />
+                android:hint="Password*"
+                android:padding="10dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
@@ -121,6 +121,31 @@
             android:background="@drawable/round_backgrnd"
             android:elevation="5dp"
             android:text="Already a user? LogIn" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_weight="1"
+            android:layout_margin="4dp">
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginTop="16dp"
+                android:text="By registering you are agree to our " />
+
+            <TextView
+                android:id="@+id/terms"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/gnt_blue"
+                android:layout_marginTop="16dp"
+                android:text="Terms &amp; Conditions ." />
+        </LinearLayout>
     </LinearLayout>
 
     </ScrollView>

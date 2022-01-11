@@ -38,6 +38,7 @@ import com.techov8.engineerguys.ui.AskQuestion.HomeFragment;
 
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static com.techov8.engineerguys.MainActivity.changeCoin;
 import static com.techov8.engineerguys.MainActivity.isVerified;
@@ -95,7 +96,7 @@ public class SolutionAdapter extends RecyclerView.Adapter<SolutionAdapter.Notice
                 if (noOfCoins >= 5) {
 
                     if (isVerified) {
-                        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).update("no_of_coins", noOfCoins-5)
+                        firebaseFirestore.collection("USERS").document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).update("no_of_coins", noOfCoins-5)
                                 .addOnCompleteListener(task -> {
                                     noOfCoins=noOfCoins-5;
                                     changeCoin();

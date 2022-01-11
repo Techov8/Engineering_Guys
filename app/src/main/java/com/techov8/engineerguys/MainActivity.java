@@ -105,15 +105,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mAuth = FirebaseAuth.getInstance();
         ///// for showing coin to user
         mActionBar = getSupportActionBar();
-        mActionBar.setDisplayShowHomeEnabled(false);
+        Objects.requireNonNull(mActionBar).setDisplayShowHomeEnabled(false);
         mActionBar.setDisplayShowTitleEnabled(false);
-        LayoutInflater mInflater = LayoutInflater.from(this);
+        LayoutInflater mInflater = LayoutInflater.from(MainActivity.this);
 
         mCustomView = mInflater.inflate(R.layout.custom_actionbar, null);
         mTitleTextView = mCustomView.findViewById(R.id.title_text);
 
 
-        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).get()
+        firebaseFirestore.collection("USERS").document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).get()
                 .addOnCompleteListener(task -> {
 
                     noOfCoins = task.getResult().getLong("no_of_coins");
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // passwordResetDialog.setView(resetMail);
 
 
-        passwordResetDialog.setPositiveButton("Verify now", (dialog, which) -> mAuth.getCurrentUser().sendEmailVerification().addOnSuccessListener(new com.google.android.gms.tasks.OnSuccessListener<Void>() {
+        passwordResetDialog.setPositiveButton("Verify now", (dialog, which) -> Objects.requireNonNull(mAuth.getCurrentUser()).sendEmailVerification().addOnSuccessListener(new com.google.android.gms.tasks.OnSuccessListener<Void>() {
             @Override
             public void onSuccess(@NonNull Void unused) {
 
@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }));
 
-        if (!mAuth.getCurrentUser().isEmailVerified()) {
+        if (!Objects.requireNonNull(mAuth.getCurrentUser()).isEmailVerified()) {
 
 
             passwordResetDialog.show();
@@ -440,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mActionBar.setDisplayShowCustomEnabled(true);
     }
     private void transferCoin(){
-        if (mAuth.getCurrentUser().isEmailVerified() && !isTaskDone && !refered_by.equals(" ")) {
+        if (Objects.requireNonNull(mAuth.getCurrentUser()).isEmailVerified() && !isTaskDone && !refered_by.equals(" ")) {
             firebaseFirestore.collection("USERS").get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
@@ -451,12 +451,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
-                                                firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).update("is_task_done", true);
+                                                firebaseFirestore.collection("USERS").document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).update("is_task_done", true);
                                             }
                                         });
                             }
                         }
-                    }).addOnFailureListener(e -> firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).update("is_task_done", true));
+                    }).addOnFailureListener(e -> firebaseFirestore.collection("USERS").document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).update("is_task_done", true));
         }
     }
 }

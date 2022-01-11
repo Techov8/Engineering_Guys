@@ -42,6 +42,7 @@ import com.techov8.engineerguys.ui.Solution.SolutionData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.GZIPOutputStream;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
@@ -87,7 +88,7 @@ public class HomeFragment extends Fragment {
             linearLayout.setVisibility(View.GONE);
         }
 
-        myClipboard = (ClipboardManager) getContext().getSystemService(CLIPBOARD_SERVICE);
+        myClipboard = (ClipboardManager) requireContext().getSystemService(CLIPBOARD_SERVICE);
         firebaseFirestore=FirebaseFirestore.getInstance();
 
         sendquestion.setOnClickListener(new View.OnClickListener() {
@@ -263,9 +264,9 @@ public class HomeFragment extends Fragment {
                         long no_of_banners = task.getResult().getLong("no_of_banners");
                         for (long x = 0; x < no_of_banners; x++) {
                             imageSliderList.add(new SlideModel(task.getResult().getString("banner_" + x + "_url")
-                                    , task.getResult().getString("banner_" + x + "_title"), ScaleTypes.FIT));
+                                    , ScaleTypes.FIT));
 
-                            String k = task.getResult().getString("bannerpromo_" + x + "_link").toString();
+                         //   String k = task.getResult().getString("bannerpromo_" + x + "_link").toString();
 
 
                             imageSlider.setImageList(imageSliderList, ScaleTypes.FIT);
@@ -275,12 +276,11 @@ public class HomeFragment extends Fragment {
                                 @Override
                                 public void onItemSelected(int i) {
 
-                                    Log.e("urllll", "ye hai  " + imageSliderList.get(i).getTitle().toString());
+                                   //Log.e("urllll", "ye hai  " + imageSliderList.get(i).getTitle().toString());
 
-                                    String n = imageSliderList.get(i).getImageUrl().toString();
+                                  //  String n = imageSliderList.get(i).getImageUrl().toString();
                                     //task.getResult().getString("bannerpromo_"+ x +"_link").toString();
                                     String k = task.getResult().getString("bannerpromo_" + i + "_link").toString();
-
                                     Intent in = new Intent(Intent.ACTION_VIEW);
                                     in.setData(Uri.parse(k));
                                     startActivity(in);
@@ -301,7 +301,7 @@ public class HomeFragment extends Fragment {
             isLoading = true;
             AdRequest adRequest = new AdRequest.Builder().build();
             RewardedAd.load(
-                    getContext(),
+                    requireContext(),
                     VIDEO_AD_UNIT_ID,
                     adRequest,
                     new RewardedAdLoadCallback() {
@@ -361,7 +361,7 @@ public class HomeFragment extends Fragment {
                     }
                 });
         rewardedAdMain.show(
-                getActivity(),
+                requireActivity(),
                 new OnUserEarnedRewardListener() {
                     @Override
                     public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
@@ -371,7 +371,7 @@ public class HomeFragment extends Fragment {
                         String rewardType = rewardItem.getType();
 
 
-                        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).update("no_of_coins",noOfCoins+rewardAmount);
+                        firebaseFirestore.collection("USERS").document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).update("no_of_coins",noOfCoins+rewardAmount);
                         noOfCoins=noOfCoins+rewardAmount;
                         changeCoin();
 

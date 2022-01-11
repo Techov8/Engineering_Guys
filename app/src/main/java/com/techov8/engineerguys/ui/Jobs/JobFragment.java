@@ -13,12 +13,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.techov8.engineerguys.R;
 
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class JobFragment extends Fragment {
 
@@ -53,7 +55,7 @@ public class JobFragment extends Fragment {
 
     private void csDepartment() {
 
-        db.collection("Jobs").orderBy("server_time").get()
+        db.collection("Jobs").orderBy("server_time", Query.Direction.DESCENDING).get()
                 .addOnCompleteListener(task -> {
 
                     if (task.isSuccessful()) {
@@ -77,7 +79,7 @@ public class JobFragment extends Fragment {
                         adapter = new JobAdapter(list1, getContext());
                         csDepartment.setAdapter(adapter);
                     } else {
-                        Toast.makeText(getContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
 

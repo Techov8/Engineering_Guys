@@ -2,20 +2,25 @@ package com.techov8.engineerguys;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -31,6 +36,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     public static String referedId = "";
     public static Boolean isfromRegister = false;
+    TextView terms;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,12 +48,24 @@ public class RegisterActivity extends AppCompatActivity {
         mobile = findViewById(R.id.mobile);
         email = findViewById(R.id.email);
         password = findViewById(R.id.password);
+        terms = findViewById(R.id.terms);
         Button register = findViewById(R.id.register);
         TextView loginUser = findViewById(R.id.login_user);
 
         firebaseFirestore = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
         pd = new ProgressDialog(this);
+
+
+        terms.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String urll = "https://engineering-guyz.github.io/#services";
+                Intent in = new Intent(Intent.ACTION_VIEW);
+                in.setData(Uri.parse(urll));
+                startActivity(in);
+            }
+        });
 
 
         loginUser.setOnClickListener(v -> startActivity(new Intent(RegisterActivity.this, LoginActivity.class)));
@@ -108,10 +126,10 @@ public class RegisterActivity extends AppCompatActivity {
                         map.put("referal", referal);
                         map.put("token", token);
                         map.put("mobile", mobile);
-                        map.put("no_of_coins", 0);
+                        map.put("no_of_coins", 10);
 
 
-                        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).set(map)
+                        firebaseFirestore.collection("USERS").document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).set(map)
                                 .addOnSuccessListener(aVoid -> {
                                     pd.dismiss();
 
@@ -129,6 +147,14 @@ public class RegisterActivity extends AppCompatActivity {
 
 
                     });
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                pd.cancel();
+
+                Toast.makeText(RegisterActivity.this,"Error ! "+e.getMessage(),Toast.LENGTH_SHORT).show();
+
+            }
         });
 
 

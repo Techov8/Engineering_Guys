@@ -134,15 +134,20 @@ public class LoginActivity extends AppCompatActivity {
                     //intent.putExtra("coin", "noOfCoins");
                     intent.putExtra("user", "username");
                     intent.putExtra("isFromRegister", "No");
-                    progressBar.setVisibility(View.GONE);
+
                     startActivity(intent);
+
                     finish();
+                    progressBar.setVisibility(View.GONE);
+
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                progressBar.setVisibility(View.GONE);
                 Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+
             }
         });
 
